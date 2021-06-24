@@ -174,6 +174,28 @@ So fastercells don't come  free. They come at the tradeoffs of area and power.
  It is required for us to offer guidance to the synthesizer to pick correct set of cells .This guiding parameters to the synthesizer are called as **CONSTRAINTS**.
  
  # Labs using Yosys and Sky130 PDKs  
+ 
+ # DAY2  
+ # TIMING LIBS, HIERARCHICAL Vs FLAT SYNTHESIS AND EFFICIENT FLOP CODING STYLES
+**INTRODUCTION TO TIMING .lib**
+We take a walk through the library that is said to have a collection of all the standard cells along with their different flavors.
+We begin by understanding the name of the library. To look into the  library,we use the gvim command  
+```javascript
+ gvim ../my_lib/lib/SKY130_fd_sc_hd__tt_025C_1v80.lib
+ ```
+The following window appears that shows the library file **SKY130_fd_sc_hd__tt_025C_1v80.lib**
+
+![lib](https://user-images.githubusercontent.com/86364922/123222320-73cbb600-d4ed-11eb-836c-2e0f00a84165.png)
+
+First line is the name of the library where TT stands for typical. For a design to work three parameters of the library are important :
+- **P- Process**:Process is the variations due to fabrication 
+- **V -voltage**: Variations in voltage also impact the behavior of the circuit.  
+- **T- temperature** :Semiconductors are very sensitive to temperature variations too.
+All this variations determine the performance of a silicon whether it is fast or slow. Thus, our libraries are characterized to model this variations.
+We can see that the lib file contains the technology and units of all the parameters above.  
+![lib2](https://user-images.githubusercontent.com/86364922/123223702-be99fd80-d4ee-11eb-87c1-9394ac48ce8b.png)  
+
+
 
  
  

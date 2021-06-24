@@ -129,6 +129,22 @@ Like,
  - medium
  - fastin
  ```
+ **But why do we need different flavours of gate?**
+ Consider the below circuit:
+ ![Screenshot (690)](https://user-images.githubusercontent.com/86364922/123197514-3d7c3f80-d4c9-11eb-8b26-dbf3b98761fb.png)  
+
+ It should take 1 CLK cycle for the signal to propagate from the Launch DFF-A to the Capture DFF-B through the combimational circuit.  
+ While this propagation all delays :
+ Propagation delay of DFF A (Tcq-a)+ Propagation delay of combinational circuit(Tcomb)+Setup              time of DFF-B(Tsetup_b).
+ Thus ,the constraint becomes:
+ ```javascript
+ Tclk>Tcq-a+Tcomb+Tsetup_b
+ ```
+ **Setup** time is the time for which data should arrive before the launch clock edge to be reflected at the output reliably.
+ 
+
+ 
+
 
 
 

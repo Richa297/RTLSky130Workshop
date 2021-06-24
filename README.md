@@ -17,33 +17,118 @@ Icarus Verilog is a simulator used for simulation and synthesis of RTL  designs 
 2. It produces a VCD file(Value change dump format) as output. Only changes in the input are dumped to changes in the output.
 3. We use **Gtkwave** to see these output changes graphically.
 
-# Labs using iverilog and gtkwave  
-We istall the opensource software Virtual box for ruuning the Linux Ubuntu without actually installing it. Then we can download any version of Linux comfortable to us.Once done,We start with the following steps for our environment seup in our virtual terminal.
-1.mkdir vsd 
-2.cd vsd
-3.git clone https://github.com/kunalg123/vsdflow.git
-4.mkdir vlsi
-4.cd vlsi
-5.git clone https://github.com/kunalg123/sky130RTLDesignAndSynthesisWorkshop.git
-6.cd SKY130RTLDesignAndSynthesisWorkshop
-7.cd my_lib
-8.cd lib
-9.cd ..
-10.cd verilog_model
-11.cd ..
+# Labs using iverilog and gtkwave
+
+We install the opensource software Virtual box for ruuning the Linux Ubuntu without actually installing it. Then we can download any version of Linux comfortable to us. Once done,We start with the following steps for our environment seup in our virtual terminal.  
+
+1.mkdir vsd  
+2.cd vsd  
+3.git clone https://github.com/kunalg123/vsdflow.git  
+4.mkdir vlsi  
+4.cd vlsi  
+5.git clone https://github.com/kunalg123/sky130RTLDesignAndSynthesisWorkshop.git  
+6.cd SKY130RTLDesignAndSynthesisWorkshop  
+7.cd my_lib  
+8.cd lib  
+9.cd ..  
+10.cd verilog_model  
+11.cd ..  
 12.cd ..  
-13.cd verilog_files
+13.cd verilog_files  
 Below screenshot shows the above directory structure inside the vsd upto my_lib directories that was set up through the terminal.![1 tool setup (2)](https://user-images.githubusercontent.com/86364922/123187775-68aa6300-d4b8-11eb-9fa1-97e42909bcc3.png)
 Below screenshot shows the list of verilog files. Each verilog design file has an assosciated test bench file.  
 
 ![verilogfilelist](https://user-images.githubusercontent.com/86364922/123188501-c3908a00-d4b9-11eb-93f8-d305bb0d8b16.png)
 
-Since the environment is now set up,we try to simulate a verilog code named good_mux in one of our verilog_files with the help of it's test bench and gtkwave.
+Since the environment is now set up,we try to simulate a verilog code named good_mux in one of our verilog_files with the help of it's test bench and gtkwave. The steps are mentioned below:
+1. We simulate the RTL design and assosciated test bench .
+  ```javascript
+  iverilog good_mux.v tb_good_mux.v
+  ```
+ As a result of the above , a. file is created which can be seen in the list of verilog files.  
+ ![iverilog1](https://user-images.githubusercontent.com/86364922/123191444-e2454f80-d4be-11eb-9132-2eaeff2480cb.png)  
+ 
+ 2. We dump the output into a vcd file.  
+   ```javascript
+  ./a.out
+  ```
+ 3.The following command invokes gtkwave window where in we can see all our outputs.
+   ```javascript
+  gtkwave tb_good_mux.vcd
+  ```  
+  ![iveri2](https://user-images.githubusercontent.com/86364922/123191771-5ed82e00-d4bf-11eb-8a8c-3871160acd51.png)   
+  
+  In the gtkwave window we drag all the variables and zoom fit to see the transitions for selected variable. 
+  
+  ![gtkwave](https://user-images.githubusercontent.com/86364922/123191925-96df7100-d4bf-11eb-83b5-32c44f7afa15.png)  
+  
+4. We can also view our Verilog RTL design and testbench code using
+  ```javascript
+  gvim tb_good_mux.v -o good_mux.v
+  ```
+  ![iveri3](https://user-images.githubusercontent.com/86364922/123192819-4701a980-d4c1-11eb-9d99-5b8b5c8d35fa.png)
+  Add vcode and testbench
+  
+  # Introduction to Yosys and Logic synthesis  
+  **Synthesizer** :It is a tool used for the conversion of an RTL to a netlist.  
+  **Netlist** : It is a representation of the input design to yosys in terms of standard cells present in     the library.
+  Yosys is the Synthesizer tool that we will be using. 
+  Diiferent levels of abstraction and synthesis  
+  ![429600_1_En_2_Fig1_HTML](https://user-images.githubusercontent.com/86364922/123193987-5255d480-d4c3-11eb-8fe5-2dd1b8cd6860.gif)
+  **Synthesizer flow**  
+  ![yosys flow](https://user-images.githubusercontent.com/86364922/123194307-e4f67380-d4c3-11eb-8bef-0846d251ae0b.png)  
+- read_verilog : It is used to read the design.
+- lib : It is used to read the library .lib.
+- write_verilog : It is used to write out the netlist.
 
+**Veifying Synthesis**
+We verify our synthesis to check if any unwanted changes have been made in our RTL design due to above operations.  
+![verifysynth](https://user-images.githubusercontent.com/86364922/123195241-7a463780-d4c5-11eb-835f-b3f3ab032387.png)  
+The set of primary inputs/outputs will remain same between the RTL design and Synthesized netlist.  Hence,same testbench can be used.Netlist and RTL are essentialy same. RTL is written in _behavioural form_ whereas netlist is written in the form of _standard cells_.  
+The waveform in the above figure should be same as observed in RTL simulation Design.
 
+**WHAT HAPPENS DURING SYNTHESIS?**
+During Logic Synthesis an RTL code is transformed into a gate level netlist.
+- A synthesizer performs gate level translation.  
+- Design is converted into gates and connections are made between the gates.  
+- The file what we write out finally is a gate-level netlist.  
+For example the following code:
+```javascript
+module sample_code(
+input clk, rst,
+output result, done);
 
+always@(posedge clk, posedge rst)
+if(rst)
+...
+else
+...
+endmodule
+```
+is coverted to the following digital circuit .![Screenshot (690)](https://user-images.githubusercontent.com/86364922/123196661-f2adf800-d4c7-11eb-8b5f-9765cee26c93.png)  
 
+**.lib**  
+.lib is the collection of logic modules which includes basic logic gates such as AND, OR, NOT, etc.
+It also contains different flavours of the same gate.
 
+Like,
+```javascript
+  2 - input AND gate
+  Versions:
+  - slow
+  - medium
+  - fast
+ 3 - input AND gate
+ Versions:
+ - slow
+ - medium
+ - fast
+ 4 - input AND gate
+ Versions:
+ - slow
+ - medium
+ - fastin
+ ```
 
 
 

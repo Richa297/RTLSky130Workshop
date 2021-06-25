@@ -4,6 +4,12 @@
 - Labs using iverilog and gtkwave  
 - Introduction to Yosys and Logic synthesis  
 - Labs using Yosys and Sky130 PDKs  
+**Day2 - TIMING LIBS, HIERARCHICAL Vs FLAT SYNTHESIS AND EFFICIENT FLOP CODING STYLES**
+-Introduction to .lib
+-Hierarchial vs Flat Synthesis
+-Sub Module level Synthesis and it's necessity
+**Day3 - Combinational and Sequential Optimisations
+
 
 ## Day 1 - Introduction to Verilog RTL design and Synthesis  
 # Introduction to open-source simulator iverilog 
@@ -229,7 +235,8 @@ We can see  in the GVIM window above that there are two input for And gate, and 
 ![areacomparison](https://user-images.githubusercontent.com/86364922/123447383-6995de80-d5f7-11eb-8363-f3e354174221.png)
 
 On  comparison we see that the and gate "and2_4" has more area as compared to  the and gate "and2_2" which in turn has more area with the and gate "and2_0". It is thus evident that and2_4 employs wider transistors. These are the different flavours of the same and gate. And and2_4 being the widest also has large leakage power values as well as large area. But it will have small delay values as it is faster .    
- **Hierarchical and flat synthesis** 
+ **HIERARCHIAL VS FLAT SYNTHESIS**   
+ 
  While syntheisizing the RTL design in which multiple modules are present, the synthesis can be done in two forms. We understand it through the following example: 
  
 ![Screenshot (730)](https://user-images.githubusercontent.com/86364922/123449007-e5dcf180-d5f8-11eb-99f6-117fc51ead78.png)

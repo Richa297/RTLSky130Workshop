@@ -287,15 +287,19 @@ synth -top sub_module1
 
 Notice ,In the synthesis report,it  inferring only 1 AND gate.
 
-**GLITCHES**
-Glitches are the unwanted or unexpected transactions that occur due to propagation delays in digital circuits. Glitches occur when an input signal changes state ,provided the signal takes two or more paths for circuit and both paths have unequal delays. The higher delay on one of the parts can cause a glitch when the single pass arrive at the output gate.  
+**GLITCHES**  
 
+Glitches are the unwanted or unexpected transactions that occur due to propagation delays in digital circuits. Glitches occur when an input signal changes state ,provided the signal takes two or more paths for circuit and both paths have unequal delays. The higher delay on one of the parts can cause a glitch when the single pass arrive at the output gate.  
 ![glitch](https://user-images.githubusercontent.com/86364922/123465838-41fd4100-d60c-11eb-83ec-fd1b6f9d95b3.png)  
 
-**Why Flops?**
-More the combinational circuits more glitchy is the output .We therfore need an element to store the value of the output and that element is called FLOP(storage element).Flop provides resistance to glitches as they transition only at the clock edges .Even though the input of the flop is glitching ,the output will be stable. This avoids glitch propagation in further combinational circuits .
+**Why Flops?**  
+
+More the combinational circuits more glitchy is the output .We therfore need an element to store the value of the output and that element is called FLOP(storage element).Flop provides resistance to glitches as they transition only at the clock edges .Even though the input of the flop is glitching ,the output will be stable. This avoids glitch propagation in further combinational circuits .  
 Also,Initialising the flop is required else the combination circuit will evaluate it to a garbage value. To initialise the flop we have reset and set pins. These two pins can be either synchronous or asynchronous.
-Asynchronous reset: this reset signal does not wait for a clock the moment as synchronous reset is received output queue becomes 0 irrespective of the clock.
+
+**Asynchoronous and Synchronous resets**
+Asynchronous reset: this reset signal does not wait for a clock the moment as synchronous reset is received output queue becomes 0 irrespective of the clock.  
+
 Asynchronous set:
 
 

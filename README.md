@@ -191,31 +191,37 @@ First line is the name of the library where TT stands for typical. For a design 
 - **P- Process**:Process is the variations due to fabrication 
 - **V -voltage**: Variations in voltage also impact the behavior of the circuit.  
 - **T- temperature** :Semiconductors are very sensitive to temperature variations too.
-All this variations determine the performance of a silicon whether it is fast or slow. Thus, our libraries are characterized to model this variations.
+All this variations determine the performance of a silicon whether it is fast or slow. Thus, our libraries are characterized to model this variations.  
 Switching off the syntax color red
 ```javascript
   Command used : syn off
   ```  
   Enabling the line numbers  
 ```javascript
-  Command used : :se nu
+  Command used :se nu
 ```  
 We can see that the lib file contains the technology and units of all the parameters.  
+
 ![Screenshot (716)](https://user-images.githubusercontent.com/86364922/123445651-bb3d6980-d5f5-11eb-8999-e020cfb874b9.png)
 
 The voltage process and temperature conditions are also specified.  
+
 ![Screenshot (717)](https://user-images.githubusercontent.com/86364922/123445735-cee8d000-d5f5-11eb-9bc1-78ed341d9dcf.png)
 
-The lib contains  different flavors of this same as well as different types of cells.    
+The lib contains  different flavors of this same as well as different types of cells.  
+
 ![Screenshot (718)](https://user-images.githubusercontent.com/86364922/123446050-1ff8c400-d5f6-11eb-8ef1-331b8d401ad7.png)  
-![arealib](https://user-images.githubusercontent.com/86364922/123446773-d3fa4f00-d5f6-11eb-94dc-b22030b06a50.png)
+
+![arealib](https://user-images.githubusercontent.com/86364922/123446773-d3fa4f00-d5f6-11eb-94dc-b22030b06a50.png)  
 
 As we see in the above window,  
 The library also represents the different features of the cell like its **leakage power**,**the various input's combinations** and the operations between them.  
-The name **a21110** signifies that it's  **And OR gate** where in the first two inputs A1 and A2 are And'ed. It's result is OR'ed  with the rest of the three inputs B1,C1 and D1. In order to understand the functionality of the cell we can also look into the  equivalent verilog model. Each of the input can take a high or a low power level.For  5 inputs we have 32 combinations in total. The behaviour model specifies the delay and   power  for each of these inputs. Inside the cell block we have different power combinations and their respective leakage  power values. It also shows the area. It gives the description of various pin in terms of their **capacitance transition** , **internal power**  and **the delay associated with this pins**.  
+The name **a21110** signifies that it's  **And OR gate** where in the first two inputs A1 and A2 are And'ed. It's result is OR'ed  with the rest of the three inputs B1,C1 and D1. In order to understand the functionality of the cell we can also look into the  equivalent verilog model. Each of the input can take a high or a low power level.For  5 inputs we have 32 combinations in total. The behaviour model specifies the delay and   power  for each of these inputs. Inside the cell block we have different power combinations and their respective leakage  power values. It also shows the area. It gives the description of various pin in terms of their **capacitance transition** , **internal power**  and **the delay associated with this pins**. 
+
 ![pinlib](https://user-images.githubusercontent.com/86364922/123447038-1459cd00-d5f7-11eb-889b-db97b24cdf40.png)
 
 We pick a small gate small gate for better understanding. We see it's behaviour view.  
+
 ![Smalland (2)](https://user-images.githubusercontent.com/86364922/123447248-42d7a800-d5f7-11eb-89bc-6178e3397eb9.png)
 
 We can see  in the GVIM window above that there are two input for And gate, and thus four possible combinations the leakage power and the logic levels   of which are specified. We now perform the comparison between the and gates.   
@@ -223,7 +229,7 @@ We can see  in the GVIM window above that there are two input for And gate, and 
 ![areacomparison](https://user-images.githubusercontent.com/86364922/123447383-6995de80-d5f7-11eb-8363-f3e354174221.png)
 
 On  comparison we see that the and gate "and2_4" has more area as compared to  the and gate "and2_2" which in turn has more area with the and gate "and2_0". It is thus evident that and2_4 employs wider transistors. These are the different flavours of the same and gate. And and2_4 being the widest also has large leakage power values as well as large area. But it will have small delay values as it is faster .    
- # Hierarchical and flat synthesis  
+ **Hierarchical and flat synthesis** 
  While syntheisizing the RTL design in which multiple modules are present, the synthesis can be done in two forms. We understand it through the following example: 
  
 ![Screenshot (730)](https://user-images.githubusercontent.com/86364922/123449007-e5dcf180-d5f8-11eb-99f6-117fc51ead78.png)
@@ -233,7 +239,8 @@ It has two some moduels. The module 1 is an OR gate ,sub module 2 is AND gate. T
 
 ![Screenshot (734)](https://user-images.githubusercontent.com/86364922/123449475-584dd180-d5f9-11eb-9cd4-db73a4d46f40.png)  
 
-![Screenshot (735)](https://user-images.githubusercontent.com/86364922/123449587-7287af80-d5f9-11eb-932f-eabab006c877.png)
+![Screenshot (735)](https://user-images.githubusercontent.com/86364922/123449587-7287af80-d5f9-11eb-932f-eabab006c877.png)  
+
 The report has inferred submodule1 having  one AND gate ,submodule2 to having one OR gate and multiple module having two cells .
 Now we link  this design to the library using abc command. To show the graphical version ,we use the command.  
 ```javascript
@@ -250,7 +257,7 @@ We use **flatten** to generate a flat netlist. Here there are no instances of U1
 Even in the design view using show command we see that it simply displays the structure completely without any hierarchy.  
 ![flatview](https://user-images.githubusercontent.com/86364922/123450797-b8914300-d5fa-11eb-8e81-991d74b0c255.png)
 
-# SUB MODULE LEVEL SYNTHESIS AND ITS NECESSITY  
+**SUB MODULE LEVEL SYNTHESIS AND ITS NECESSITY**  
 
 **Need for Sub-module synthesis**
 - Module level synthesis is preferred when we have multiple instances of the same module.  
@@ -269,30 +276,15 @@ multi_modules.v
 read_iverilog multiple_modules.v
 synth -top sub_module1
 ```
+![Screenshot (781)](https://user-images.githubusercontent.com/86364922/123455897-dca35300-d5ff-11eb-85d7-6a28dc0d1823.png)
 
-See SS: It is "(Report)" inferring only 1 AND gate
-
-show abc liberty/my-libl. lib (linking) 
- We see only the and gate
-
-show
-
-We control the module that we are are synthezing using the keyword synth -top.
+Notice ,In the synthesis report,it  inferring only 1 AND gate.
 
 
-Let assume a top module having multiple instantiations of the same unit (gate )say multiplier. Rather than synthesizing multipier multiple times as mult1,mult 2, mult3 etc. It's better to synthesize it once & replicate it multiple times.
 
-REASON FOR SUB-MODULE SYNTHESIS 
-Module level synthesis is preferred when  have multiple instances of the module .
 
-We want to do divide & conquer approach.
 
-Lits assume our RTL design is very massive
-&when we are giving
-it to a tool, it's not doing good job. Instead of giving 1 massive design to the tool, we are giving portions by portions to the tool so that it provides an optimised netlist. And we stitch all these netlists at the top level.
 
-Hence, we control the model that we are synthesising using keyword Synth -top
-Synth -top module name.
 
 
 

@@ -858,7 +858,8 @@ Since the waveforms of the stimulated RTL  verilog code do not match with the ga
 
 # Day 5 - If, Case, For Loop and For Generate
 
-**If Constructs**
+**If Constructs**  
+
 If condition is used to to write priority logic. The condition one has a priority or if has more priority than the consecutive else  statements .
 Only when condition 1 is not met condition 2 is evaluated and so on and y is assigned accordingly depending on the matching conditions.  
 ```javascript  
@@ -879,10 +880,8 @@ begin
 	y = statement_4;
 end
 ```  
-If-else block implements a Priority logic that is if cond_1 is satisfied, next ]'statements.
-Thus we get a ladder like multiplexer structure in the final design instead of a single multiplexer, which is shown below.
-
-$ code ss $
+If-else block implements a Priority logic that is if cond_1 is satisfied, next if statements are not executed.
+Thus above If-Else code translates to a  ladder like multiplexer structure in the final design instead of a single multiplexer.
 
 Since the tool does not know what to do when both conditions are false, it will infer a latch
 to store the latest value of the output. When both conditions are false, the stored value in the latch will be driven to the output.

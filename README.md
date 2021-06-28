@@ -265,27 +265,31 @@ Switching off the syntax color red
 ```  
 We can see that the lib file contains the technology and units of all the parameters.  
 
-![Screenshot (716)](https://user-images.githubusercontent.com/86364922/123445651-bb3d6980-d5f5-11eb-8999-e020cfb874b9.png)
+![Screenshot (716)](https://user-images.githubusercontent.com/86364922/123690342-dfa57a00-d871-11eb-965c-1b788ab7495e.png)
 
 The voltage process and temperature conditions are also specified.  
 
-![Screenshot (717)](https://user-images.githubusercontent.com/86364922/123445735-cee8d000-d5f5-11eb-9bc1-78ed341d9dcf.png)
+![Screenshot (717)](https://user-images.githubusercontent.com/86364922/123690380-ecc26900-d871-11eb-8de1-efbac84efd28.png)
 
 The lib contains  different flavors of this same as well as different types of cells.  
 
-![Screenshot (718)](https://user-images.githubusercontent.com/86364922/123446050-1ff8c400-d5f6-11eb-8ef1-331b8d401ad7.png)  
+![Screenshot (718)](https://user-images.githubusercontent.com/86364922/123690413-f8ae2b00-d871-11eb-9801-f3d07f18be23.png)
 
-![arealib](https://user-images.githubusercontent.com/86364922/123446773-d3fa4f00-d5f6-11eb-94dc-b22030b06a50.png)  
+
+![arealib](https://user-images.githubusercontent.com/86364922/123690466-08c60a80-d872-11eb-9d69-73eb5af768bc.png)
 
 As we see in the above window,  
 The library also represents the different features of the cell like its **leakage power**,**the various input's combinations** and the operations between them.  
+
 The name **a21110** signifies that it's  **And OR gate** where in the first two inputs A1 and A2 are And'ed. It's result is OR'ed  with the rest of the three inputs B1,C1 and D1. In order to understand the functionality of the cell we can also look into the  equivalent verilog model. Each of the input can take a high or a low power level.For  5 inputs we have 32 combinations in total. The behaviour model specifies the delay and   power  for each of these inputs. Inside the cell block we have different power combinations and their respective leakage  power values. It also shows the area. It gives the description of various pin in terms of their **capacitance transition** , **internal power**  and **the delay associated with this pins**. 
 
-![pinlib](https://user-images.githubusercontent.com/86364922/123447038-1459cd00-d5f7-11eb-889b-db97b24cdf40.png)
+![pinlib](https://user-images.githubusercontent.com/86364922/123690584-28f5c980-d872-11eb-8fea-ff80a0bfbdde.png)
+
 
 We pick a small gate small gate for better understanding. We see it's behaviour view.  
 
-![Smalland (2)](https://user-images.githubusercontent.com/86364922/123447248-42d7a800-d5f7-11eb-89bc-6178e3397eb9.png)
+![Smalland (2)](https://user-images.githubusercontent.com/86364922/123690641-36ab4f00-d872-11eb-850f-8044800e3e52.png)
+
 
 We can see  in the GVIM window above that there are two input for And gate, and thus four possible combinations the leakage power and the logic levels   of which are specified. We now perform the comparison between the and gates.   
 
@@ -297,30 +301,37 @@ On  comparison we see that the and gate "and2_4" has more area as compared to  t
  
  While syntheisizing the RTL design in which multiple modules are present, the synthesis can be done in two forms. We understand it through the following example: 
  
-![Screenshot (730)](https://user-images.githubusercontent.com/86364922/123449007-e5dcf180-d5f8-11eb-99f6-117fc51ead78.png)
+![Screenshot (730)](https://user-images.githubusercontent.com/86364922/123690979-ae797980-d872-11eb-9022-6c8f7488b5ed.png)
 
 
 It has two some moduels. The module 1 is an OR gate ,sub module 2 is AND gate. The sub module called multiple modules  instantiates  sub module 1 as u1 and sub module 2 as u2. It has three inputs a b c and an output y.
 
-![Screenshot (734)](https://user-images.githubusercontent.com/86364922/123449475-584dd180-d5f9-11eb-9cd4-db73a4d46f40.png)  
+![Screenshot (734)](https://user-images.githubusercontent.com/86364922/123691034-bfc28600-d872-11eb-8689-ec2efba54159.png)
 
-![Screenshot (735)](https://user-images.githubusercontent.com/86364922/123449587-7287af80-d5f9-11eb-932f-eabab006c877.png)  
+
+![Screenshot (735)](https://user-images.githubusercontent.com/86364922/123691065-c9e48480-d872-11eb-9bc4-4d719db78a58.png)
+ 
 
 The report has inferred submodule1 having  one AND gate ,submodule2 to having one OR gate and multiple module having two cells .
 Now we link  this design to the library using abc command. To show the graphical version ,we use the command.  
 ```javascript
 show multiple_modules
 ```
-![Screenshot (736)](https://user-images.githubusercontent.com/86364922/123450058-ea55da00-d5f9-11eb-86e8-ea4c345beb4b.png)
+![Screenshot (736)](https://user-images.githubusercontent.com/86364922/123691154-e08adb80-d872-11eb-9140-a53bf1300bb8.png)
+
 
 Instead of or and and gates it shows the instances u1 and u2 while preserving the hierarchy. This is called the **hierarchical design.** 
 
 Instead of or, and the circuit is implemented using nand and inverter gates. We always prefer stacked NMOS's(nand gates)to stacked the PMOS's(nor cascaded with inverter for or). Because pmos has a very poor mobility and therefore they have to be made quite wide to obtain a good logical effort .   
-We use **flatten** to generate a flat netlist. Here there are no instances of U1 and U2 and hierarchy is not present.    
-![flatnetlist](https://user-images.githubusercontent.com/86364922/123451021-efffef80-d5fa-11eb-87c4-1101fdc3acf9.png)  
+We use **flatten** to generate a flat netlist. Here there are no instances of U1 and U2 and hierarchy is not present.  
+ 
+ ![flatnetlist](https://user-images.githubusercontent.com/86364922/123691349-2051c300-d873-11eb-84bf-aee7457099a3.png)
+
 
 Even in the design view using show command we see that it simply displays the structure completely without any hierarchy.  
-![flatview](https://user-images.githubusercontent.com/86364922/123450797-b8914300-d5fa-11eb-8e81-991d74b0c255.png)
+
+![flatview](https://user-images.githubusercontent.com/86364922/123691382-31023900-d873-11eb-8608-a577a5c359f0.png)
+
 
 ## SUB MODULE LEVEL SYNTHESIS AND ITS NECESSITY  
 

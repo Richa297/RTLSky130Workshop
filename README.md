@@ -1,18 +1,34 @@
-### RTL Design Using Verilog With SKY130 Technology![120062155-4e7a9200-c07e-11eb-9a57-7c6520750a72](https://user-images.githubusercontent.com/86364922/123119864-826c8b80-d461-11eb-86f1-a0842c7c5a55.jpg)
-**Day 1 - Introduction to Verilog RTL design and Synthesis**  
-- Introduction to open-source simulator iverilog  
-- Labs using iverilog and gtkwave  
-- Introduction to Yosys and Logic synthesis  
-- Labs using Yosys and Sky130 PDKs  
-**Day2 - TIMING LIBS, HIERARCHICAL Vs FLAT SYNTHESIS AND EFFICIENT FLOP CODING STYLES**
--Introduction to .lib
--Hierarchial vs Flat Synthesis
--Sub Module level Synthesis and it's necessity
-**Day3 - Combinational and Sequential Optimisations
+# RTL Design Using Verilog With SKY130 Technology![120062155-4e7a9200-c07e-11eb-9a57-7c6520750a72](https://user-images.githubusercontent.com/86364922/123119864-826c8b80-d461-11eb-86f1-a0842c7c5a55.jpg)
+## Table of contents
+- [Day 1 - Introduction to Verilog RTL design and Synthesis](#day-1---introduction-to-verilog-rtl-design-and-synthesis)
+  * [Introduction to open-source simulator iverilog](#introduction-to-open-source-simulator-iverilog)
+  * [Labs using iverilog and gtkwave](#labs-using-iverilog-and-gtkwave)
+    + [Introduction to Yosys and Logic synthesis](#introduction-to-yosys-and-logic-synthesis)
+    + [Understanding .lib](#understanding-lib)
+- [DAY2 : TIMING LIBS, HIERARCHICAL Vs FLAT SYNTHESIS AND EFFICIENT FLOP CODING STYLES](#day2---timing-libs--hierarchical-vs-flat-synthesis-and-efficient-flop-coding-styles)
+  * [INTRODUCTION TO TIMING .lib](#introduction-to-timing-lib)
+  * [HIERARCHIAL VS FLAT SYNTHESIS](#hierarchial-vs-flat-synthesis)
+  * [SUB MODULE LEVEL SYNTHESIS AND ITS NECESSITY](#sub-module-level-synthesis-and-its-necessity)
+  * [GLITCHES](#glitches)
+  * [Asynchoronous and Synchronous resets](#asynchoronous-and-synchronous-resets)
+  * [OPTIMISATIONS](#optimisations)
+- [DAY 3 : Combinational and Sequential Optimisations](#day-3---combinational-and-sequential-optimisations)
+  * [Introduction to Logic optimisations](#introduction-to-logic-optimisations--)
+  * [Combinational Logic Optimisations](#combinational-logic-optimisations)
+  * [Sequential Logic Optimisations](#sequential-logic-optimisations)
+- [Day 4: Gate Level Simulations,Blocking vs Non Blocking assignments,Synthesis-Simulation Mismatch](#day-4--gate-level-simulations-blocking-vs-non-blocking-assignments-synthesis-simulation-mismatch)
+  * [Introduction to Gate Level Simulations](#introduction-to-gate-level-simulations)
+  * [Synthesis Simulation Mismatches](#synthesis-simulation-mismatches)
+  * [Labs on GLS and Synthesis-Simulation Mismatch](#labs-on-gls-and-synthesis-simulation-mismatch)
+- [Day 5 - If, Case, For Loop and For Generate](#day-5---if--case--for-loop-and-for-generate)
+  * [If Constructs](#if-constructs)
+  * [Labs on Incorrect IF and CASE constructs](#labs-on-incorrect-if-and-case-constructs)
+  * [Introduction to Looping Constructs](#introduction-to-looping-constructs)
 
 
-## Day 1 - Introduction to Verilog RTL design and Synthesis  
-# Introduction to open-source simulator iverilog 
+
+# Day 1 - Introduction to Verilog RTL design and Synthesis  
+## Introduction to open-source simulator iverilog 
 **RTL** :  Register-transfer level (RTL) is a representation at the abstraction level that expresses a synchronous digital circuit in terms of the flow of digital signals (data) between hardware registers along with  the logical operations performed on those signals.Register-transfer-level abstraction is used in hardware description languages (HDLs) like Verilog and VHDL to create high-level representations of a circuit, from where we can derive lower-level representations.
 **Simulator** : It is a tool for checking whether our RTL design meets the required specifications or not.
 Icarus Verilog is a simulator used for simulation and synthesis of RTL  designs written in verilog which is one of the many hardware description languages.  
@@ -23,7 +39,7 @@ Icarus Verilog is a simulator used for simulation and synthesis of RTL  designs 
 2. It produces a VCD file(Value change dump format) as output. Only changes in the input are dumped to changes in the output.
 3. We use **Gtkwave** to see these output changes graphically.
 
-# Labs using iverilog and gtkwave
+## Labs using iverilog and gtkwave
 
 We install the opensource software Virtual box for ruuning the Linux Ubuntu without actually installing it. Then we can download any version of Linux comfortable to us. Once done,We start with the following steps for our environment seup in our virtual terminal.  
 
@@ -75,7 +91,7 @@ Since the environment is now set up,we try to simulate a verilog code named good
   ![iveri3](https://user-images.githubusercontent.com/86364922/123192819-4701a980-d4c1-11eb-9d99-5b8b5c8d35fa.png)
   Add vcode and testbench
   
-  # Introduction to Yosys and Logic synthesis  
+  ### Introduction to Yosys and Logic synthesis  
   **Synthesizer** :It is a tool used for the conversion of an RTL to a netlist.  
   **Netlist** : It is a representation of the input design to yosys in terms of standard cells present in     the library.
   Yosys is the Synthesizer tool that we will be using. 
@@ -113,7 +129,7 @@ endmodule
 ```
 is coverted to the following digital circuit .![Screenshot (690)](https://user-images.githubusercontent.com/86364922/123196661-f2adf800-d4c7-11eb-8b5f-9765cee26c93.png)  
 
-**.lib**  
+### Understanding .lib  
 .lib is the collection of logic modules which includes basic logic gates such as AND, OR, NOT, etc.
 It also contains different flavours of the same gate.
 
@@ -179,11 +195,12 @@ So fastercells don't come  free. They come at the tradeoffs of area and power.
 - More use of slower cells may result in a sluggist circuit and may not meet the performance.
  It is required for us to offer guidance to the synthesizer to pick correct set of cells .This guiding parameters to the synthesizer are called as **CONSTRAINTS**.
  
- # Labs using Yosys and Sky130 PDKs  
+## Labs using Yosys and Sky130 PDKs  
+
  
- # DAY2  
- # TIMING LIBS, HIERARCHICAL Vs FLAT SYNTHESIS AND EFFICIENT FLOP CODING STYLES
-**INTRODUCTION TO TIMING .lib**
+ 
+ # DAY2 : TIMING LIBS, HIERARCHICAL Vs FLAT SYNTHESIS AND EFFICIENT FLOP CODING STYLES
+## INTRODUCTION TO TIMING .lib
 We take a walk through the library that is said to have a collection of all the standard cells along with their different flavors.
 We begin by understanding the name of the library. To look into the  library,we use the gvim command  
 ```javascript
@@ -234,8 +251,9 @@ We can see  in the GVIM window above that there are two input for And gate, and 
 
 ![areacomparison](https://user-images.githubusercontent.com/86364922/123447383-6995de80-d5f7-11eb-8363-f3e354174221.png)
 
-On  comparison we see that the and gate "and2_4" has more area as compared to  the and gate "and2_2" which in turn has more area with the and gate "and2_0". It is thus evident that and2_4 employs wider transistors. These are the different flavours of the same and gate. And and2_4 being the widest also has large leakage power values as well as large area. But it will have small delay values as it is faster .    
- **HIERARCHIAL VS FLAT SYNTHESIS**   
+On  comparison we see that the and gate "and2_4" has more area as compared to  the and gate "and2_2" which in turn has more area with the and gate "and2_0". It is thus evident that and2_4 employs wider transistors. These are the different flavours of the same and gate. And and2_4 being the widest also has large leakage power values as well as large area. But it will have small delay values as it is faster .   
+
+ ## HIERARCHIAL VS FLAT SYNTHESIS   
  
  While syntheisizing the RTL design in which multiple modules are present, the synthesis can be done in two forms. We understand it through the following example: 
  
@@ -264,7 +282,7 @@ We use **flatten** to generate a flat netlist. Here there are no instances of U1
 Even in the design view using show command we see that it simply displays the structure completely without any hierarchy.  
 ![flatview](https://user-images.githubusercontent.com/86364922/123450797-b8914300-d5fa-11eb-8e81-991d74b0c255.png)
 
-**SUB MODULE LEVEL SYNTHESIS AND ITS NECESSITY**  
+## SUB MODULE LEVEL SYNTHESIS AND ITS NECESSITY  
 
 **Need for Sub-module synthesis**
 - Module level synthesis is preferred when we have multiple instances of the same module.  
@@ -287,7 +305,7 @@ synth -top sub_module1
 
 Notice ,In the synthesis report,it  inferring only 1 AND gate.
 
-**GLITCHES**  
+## GLITCHES  
 
 Glitches are the unwanted or unexpected transactions that occur due to propagation delays in digital circuits. Glitches occur when an input signal changes state ,provided the signal takes two or more paths for circuit and both paths have unequal delays. The higher delay on one of the parts can cause a glitch when the single pass arrive at the output gate.  
 ![glitch](https://user-images.githubusercontent.com/86364922/123465838-41fd4100-d60c-11eb-83ec-fd1b6f9d95b3.png)  
@@ -297,7 +315,7 @@ Glitches are the unwanted or unexpected transactions that occur due to propagati
 More the combinational circuits more glitchy is the output .We therfore need an element to store the value of the output and that element is called FLOP(storage element).Flop provides resistance to glitches as they transition only at the clock edges .Even though the input of the flop is glitching ,the output will be stable. This avoids glitch propagation in further combinational circuits .  
 Also,Initialising the flop is required else the combination circuit will evaluate it to a garbage value. To initialise the flop we have reset and set pins. These two pins can be either synchronous or asynchronous.
 
-**Asynchoronous and Synchronous resets**  
+## Asynchoronous and Synchronous resets  
 Asynchronous reset: this reset signal does not wait for a clock .The moment asynchronous reset signal  is received output queue becomes 0 irrespective of the clock.  
 
 Asynchronous set: this set signal does not wait for a clock. The moment asynchronous reset is signal received output queue becomes 1 irrespective of the clock.      
@@ -340,7 +358,7 @@ RTL CODE:
 Synthesis results:  
 ![Screenshot (797)](https://user-images.githubusercontent.com/86364922/123567810-9f49eb80-d7e0-11eb-8ee6-13f917855169.png) 
 
-**OPTIMISATIONS**
+## OPTIMISATIONS
 We now observe some Interesting Optimisations For Special Cases :  
 
 **Case 1:**
@@ -408,7 +426,7 @@ On synthesizing the netlist and look at it's graphical realisation , we will see
  
  # DAY 3 : Combinational and Sequential Optimisations  
  
- **Introduction to Logic optimisations**  
+ ## Introduction to Logic optimisations  
  Inorder to produce a  digital circuit design which is optimised interms of area and power, the simulator performs many types of optimisations on the combinational and sequential circuits. 
  
  1.Combinational optimisation  methods:
@@ -429,7 +447,7 @@ On synthesizing the netlist and look at it's graphical realisation , we will see
 	- Sequential Logic Cloning (Floor Plan Aware Synthesis)
 
 
-**Combinational Logic Optimisations**
+## Combinational Logic Optimisations
 
 We will try to understand each of the above mentioned combinational optimisations through different RTL code examples. For each example, We also check the synthesis implementation through yosys to understand how the optimisations take place.   
 All the  optimisation examples are in files opt_check.v, opt_check4.v, and multiple_modules_opt.v. All of these files are present under the verilog_files directory.
@@ -541,7 +559,7 @@ On boolean optimisation, we obtain y=1 simply.
 It's synthesis yields:
 ![multiple_module_opt2](https://user-images.githubusercontent.com/86364922/123582073-c6adb200-d7fa-11eb-9fa5-47cb3de7b2ac.png)  
 
-**Sequential Logic Optimisations**
+## Sequential Logic Optimisations
 
 We will try to understand each of the sequential optimisations through different RTL code examples. For each example, We also check the synthesis implementation through yosys to understand how the optimisations take place.   
 All the  optimisation examples are in files  dff_const2.v,dff_const3.v,dffconst4.v and dff_const5.v. All of these files are under the verilog_files directory.
@@ -656,10 +674,13 @@ As the output is always constant, it can easily be optimised using Yosys as show
 
 ![Screenshot (882)](https://user-images.githubusercontent.com/86364922/123589434-da5f1580-d806-11eb-81ad-600bab8e0772.png)  
 
-**Unused output optimisations**  
+**Unused output optimisations**
+
 
 # Day 4: Gate Level Simulations,Blocking vs Non Blocking assignments,Synthesis-Simulation Mismatch  
-**Introduction to Gate Level Simulations**  
+
+## Introduction to Gate Level Simulations 
+
 We validate our RTL design by providing stimulus to the testbench and check whether it meets our specifications earlier we were running the test bench with the RTL code as our design under test .  
 But now under  GLS ,we apply netlist to the testbench as desh under test . What We did at the behavioral level in the RTL code got transformed to the net list in terms of the standard cells present in the library. So,net list is logically same as the RTL code. They both have the same inputs and outputs so the netlist should seamlessly fit in the place of the RTL code. We put the netlist in place of the RTL file and run the simulation with the test bench.  
 When we do simulation in with the help of RTL code there is no concept of timing analysis such as the hold and setup time which are critical for a circuit. For meeting this setup and hold time criteria there are different flavours of cell in the library.
@@ -671,7 +692,7 @@ In GLS  using iverilog flow, the design is a netlist which is given to Iverilog 
 Question : If netlist is the true representation of my RTL code then what is the need of functional validation of my net list?  
 Answer:  Because they can be simulation and synthesis mismatches.  
 
-**Synthesis Simulation Mismatches**  
+## Synthesis Simulation Mismatches 
 - Missing sensitivity list
 - Blocking and non blocking statements
 
@@ -764,7 +785,7 @@ We enter into the loop whenever any of the inputs a b or C changes but Y is assi
 
 Therefore ,while using blocking statements in this case,we should evaluate Q0 first and then Y so that Y takes on the updated values of Qo. Although both the circuits on synthesis give the same digital circuit comprising of AND, OR gates. But on simulation we get different behaviours.  
 
-**Labs on GLS and Synthesis-Simulation Mismatch**  
+## Labs on GLS and Synthesis-Simulation Mismatch 
 
 Example 1:
 A mux designed with the help of ternary operator
@@ -858,10 +879,11 @@ Since the waveforms of the stimulated RTL  verilog code do not match with the ga
 
 # Day 5 - If, Case, For Loop and For Generate
 
-**If Constructs**  
+## If Constructs 
 
 If condition is used to to write priority logic. The condition one has a priority or if has more priority than the consecutive else  statements .
-Only when condition 1 is not met condition 2 is evaluated and so on and y is assigned accordingly depending on the matching conditions.  
+Only when condition 1 is not met condition 2 is evaluated and so on and y is assigned accordingly depending on the matching conditions.   
+
 ```javascript  
 if (cond_1)
 begin 	
@@ -883,23 +905,49 @@ end
 If-else block implements a Priority logic that is if cond_1 is satisfied, next if statements are not executed.
 Thus above If-Else code translates to a  ladder like multiplexer structure in the final design instead of a single multiplexer.
 
-Since the tool does not know what to do when both conditions are false, it will infer a latch
-to store the latest value of the output. When both conditions are false, the stored value in the latch will be driven to the output.
+**Dangers of using Incomplete If statements**
+Inferred Logic which occurs due to bad coding styles that is incomplete if statements.
+```javascript
+if (condt1) 
+    y-a;
+else if (condt2)
+    y=b;
+ ```
+In the above code if condition 1 is matched y is equal to a else  if condition 2 is matched y is equal to b but there is no specification for the case when condition2 is not matched, as a result of which the simulator tries to latch this case to the output y.It wants to retain the value of y.  
+This is a combinational loop to avoid that the simulator infers a latch. **Enable** of this latch is OR of the condition 1 and condition 2.
+If neither condition 1 or condition 2 is met the OR gate output  disables the latch . The latch retains the value of y and stores it.   
+This is called the inferred latch due to incomplete if statements which is very dangerous for RTL designing.
+It should be avoided except for some special cases like the counter.
 
+```javascript
+reg[2:0]
+always @(posedge clk,posedge reset)
+Begin
+If (reset)
+Count<= 3'b000;
+else if(enable)
+Count<= count+1;
+end
+```
 
-We must always take into consideration what hardware will our verilog code directly be translated to. Sometimes however, incomplete
-IF constructs are perfecctly fine in cases such as counters where latches must store the previous output as the input when no enable condition is found.
+This is also a case of incomplete if statements. Here ,if there  is no enable the counter should latch onto the previous value.For example if the counter has counted up till 4 and there is no enable then it should retain the value 4 rather than going to 0 again.  
+So here the incomplete if statements result in latching And retaining the previous value which is our desired behavior in a counter.
+The earlier mux example was a combinational circuit and therefore we cannot have inferred latches. 
 
+Note:  
+If, case statements are used inside always block.  
+In verilog  whatever variable we use to assign in if or case statements must be a register variable.
 
-CASE Constructs.
+**CASE Constructs**
 
-Let's look at the following verilog code block. Here, the inferred hardware would be a 4:1 multiplexer.
-Note that CASE statements do not have priority logic like IF statements.
+Let's look at the following verilog code block. Here, the inferred hardware should be a 4:1 multiplexer.
+The CASE statements do not have priority logic like IF statements.
 
+```javascript
 always @(*)
 begin
-	case(sel)
-		2'boo: begin
+     case(sel)
+		2'b00: begin
 			y = statement_1;
 			end
 		2'b01: begin
@@ -913,30 +961,52 @@ begin
 			end
 	endcase
 end
+```  
+Depending on the cases matching the select y is  assigned accordingly.
 
 Some caveats with using CASE statements:
 
-1.Incomplete CASE
-
+**1.Incomplete CASE**  
+Let's say I have a two bit variable select.
+```javascript
+reg [1:0] sel
 always @(*)
 begin
-	case(sel)
-		2'b00: begin
-			y = statement_1;
-		2'b01: begin
-			y = statement_2;
-			end
-	endcase
-end
+     case(sel)
+     2'b00: begin
+                   . condition 1
+                   end
+     2'b01: begin
+                   . condition 2
+                   end
+    end case
+    end
+  ```  
+  
+Then select is C1 or C3 the conditions are not specified. It causes an incomplete case which results in inferred latches for these two cases that latch on to output y.This occurs when some cases are not specified inside the CASE block .For example, if the 2'b10 and 2'b11 cases were not mentioned , the tool would synthesize inferred latches at the 3rd and 4th inputs of the multiplexer.   
+Solution is code case with default inside the CASE block so that the tool knows what to do when a case that is not specified occurs.
 
+Correct code : 
+```javascript
+reg [1:0] sel
+always @(*)
+begin
+     case(sel)
+     2'b00: begin
+                   . condition 1
+                   end
+     2'b01: begin
+                   . condition 2
+                   end
+    default :begin
+                   . condition 3
+                   end   
+    end case
+    end
+  ```
 
-This occurs when some cases are not specified inside the CASE block .For example, if the 2'b10 and 2'b11 cases were not mentioned,
-the tool would synthesize inferred latches at the 3rd and 4th inputs of the multipleaxer. To avoid this, we can make use of the default: case
-inside the CASE block so that the tool knows what to do when a case that is not specified occurs.
-
-
-2.Partial assignments
-
+**2.Partial assignments**
+```javascript
 always @(*)
 begin
 	case(sel)
@@ -951,18 +1021,12 @@ begin
 			end
 	endcase
 end
+```
+In the above example, we have 2 outputs x and y. This will create two 4X1 multiplexers with the respective  outputs. If we look at case 2'b01, we have specified the value of x for this case ,but not the value of y. It appears that it is okay to do so, as a default case is specified for  both the outputs, and if we don't directly specify the value of y for any case, the simulator will implement the default case. This, however , is incorrect. In partial assignments such as this, the simulator will infer a latch at the 2nd input for multiplexer y as no value is specified for a particular case.
 
 
-In the above example, we have 2 outputs x and y. This will create two 4:1 multiplexers,
-one for each output. If we look at case 2'b01, we have specified the value of x for this case
-,but not the value of y. We might assume that it is okay to do so, as a default case is specified
-for  both the outputs, and if we don't directly specify the value of y, the tool
-will imply the default case. This, however , is incorrect. In partial assignments such as this, the tool will infer a latch 
-at the 2nd input for multiplexer y as no value is specified.
-
-
-3.Overlapping cases
-
+**3.Overlapping cases**
+```javascript
 always @(*)
 begin
 	case(sel)
@@ -978,20 +1042,22 @@ begin
 			end
 	endcase
 end
+```
+
+In the above code block ,2'b1? specifies that the corresponding bit  can be either be 0 or 1. 
+This means when the sel input is holding a value 3 i.e 2'b11, cases 3 and 4 both hold true. What is synthesized depends on the mercy of the simulator. It can lead to Synthesis-Simulation mismatches.  
+If we used an IF condition here, due to priority logic, condition 4 would be ignored when condition 3 is met.
+However,in the CASE statement , even if the upper case is matched,all the cases are checked.So,if there is overlapping in cases,it poses a problem as the cases are not mutually exclusive.
+And  we would get an unpredictable output.  
 
 
-In the above code block ,2'b1? specifies that the LSB can be either 0 or 1. 
-This means when the sel input is holding a value 3,
-conditiona 3 and 4 both hold true.If we used an IF condition here, due to priority logic, condition 4 would be ignored when condition 3 is met. However
-,in the CASE statement , both conditions would hold true as there is no priority logic,
-and we would get an unpredictable output. This is known as an overlaping case.
+## Labs on Incorrect IF and CASE constructs
 
-Synthesizing Incorrect IF and CASE constructs
+Example 1: Incomplete If statements
 
-Example 1:
+Below is the file titled incomp_if.v, and can be found in the directory verilog_files.  
 
-Below is the file titled incomp_if.v, and can be found in the directory verilog_files.
-
+```javascript
 module incomp_if(input i0 , input i1 , input i2 , output reg y);
 always @(*)
 begin
@@ -999,30 +1065,24 @@ begin
 		y <= i1;
 end
 endmodule
+```
+The code contains an incomplete IF statement as no else condition corresponding to it is mentioned .
+On simulating this design , following gtkwave is obtained  
+
+![Screenshot (883)](https://user-images.githubusercontent.com/86364922/123663303-e32a0880-d853-11eb-8676-f417a72e3754.png)
 
 
+From the above waveform, We observe no change in y when i0=0.It's equal to previous value when io=0. This shows latching Action, which is verified by looking at the synthesis implementation using Ysosys.
 
-The code contains an incomplete IF statement as no else condition is mentioned .As we
-have learnt, we should see latch like behaviour in the simulation .
-Let's simulate this design using the following commands
+ ![Screenshot (885)](https://user-images.githubusercontent.com/86364922/123663891-75321100-d854-11eb-8528-10d95d5d3726.png)
 
 
-$cmd ss $
-
-$cmd ss $
-
-From the above waveform, We can observe that when i0 becomes low, the output y holds
-the previous value of input i1. This shows latch like behaviour , and can further
-be detailed by looking at the synthesis output using Ysosys.
-
- $ cmd ss $
-
-As we can see, an inferred latch is created in the synthesized netlist.
+We see a D  latch is created in the synthesized netlist.
 
 Example 2:
 
-Let's look at a similar example of incomp_if2.v below.
-
+Below is a similar example of incomp_if2.v 
+```javascript
 module incomp_if2(input i0 , input i1 , input i2 , input i3,  output reg y);
 always @(*)
 begin
@@ -1033,37 +1093,63 @@ begin
 
 end
 endmodule
+```
 
 	
 The above code contains an incomplete IF statement as well. Here, we have 2 inputs i1 and i3,
-as well as 2 conditional inputs i0 and i2. As we do not specify what happens to the output y when both i0 and i2 go low,
-we will get an issue in the final synthesis. Let us look at its simulated waveform.
+as well as 2 conditional inputs i0 and i2. As we do not specifythe case when both i0 and i2 go low,which results in an issue in the  synthesis. 
+The gtkwaveform of the simulated design is below   
 
-$cmd ss $
+![Screenshot (884)](https://user-images.githubusercontent.com/86364922/123664672-2cc72300-d855-11eb-9bdc-1707c690f0c5.png)
 
-As you can see, when both i0 and i2 are low,
-the output y depicts latch like behaviour.
-This can be verified by checking the graphical realisation of the yosys synthesis below.Yosys synthesizes a multiplexer
-as well as a latch with some combinational logic foe its enable pin.
+Observation: When io is high,output follows i1.
+             When io is low,it looks for i2.If i2 is high,it follows i3.
+	     But if i2 is low(and io is already low),y attains a constant value=previous output.  
+	     
+This can be verified by checking the graphical realisation of the yosys synthesis below.  
 
-$cmd ss$
+![Screenshot (886)](https://user-images.githubusercontent.com/86364922/123665414-e32b0800-d855-11eb-82b9-992498c79cc1.png)
 
+Yosys synthesizes a multiplexer as well as a latch with some combinational logic at its enable pin.
 
-Example3:
+Example3:  
 
+Below is a design with Incomplete Case's specification in a mux.
+
+```javascript
 module incomp_case (input i0 , input i1 , input i2 , input [1:0] sel , output reg y);
 always @ (*)
 begin
-	cae(sel)
+	case(sel)
 		2'b00: y = i0;
 		2'b01: y = i1;
 	endcase
 end
 endmodule
+```
+The truth table for the above 2X1 mux looks like:
+
+| sel[1] | sel[0] |  y    |
+|--------|--------|-------|
+|   0    |    0   |   io  |
+|   0    |    1   |   i1  |
+|   1    |    0   | latch |
+|   1    |    1   | latch |
+
+Whenever se[1]=1 ,latching action takes place.
+The yosys synthesis implementation is given below. 
+
+![Screenshot (888)](https://user-images.githubusercontent.com/86364922/123667321-ab24c480-d857-11eb-92c7-c20d1ef7e87e.png)
+
+Observation: 1. !(sel[1]) is going to D latch enable.
+             2.The inputs io,sel[0], !(sel[1]) go to the upper mixing logic that is implemented on D pin of the latch.
 
 
-Example 4:
+Example 4:  
 
+Complete Mux along with all the cases specified.  
+
+```javascript
 module comp_case (input i0 , input i1 , input i2 , input [1:0] sel , output reg y);
 always @ (*)
 begin
@@ -1074,12 +1160,17 @@ begin
 	endcase
 end
 endmodule
+```
 
-follows i2 at default case
+Output follows i2 at default case,if i1 and io go low.
+Hence a 4X1 mux is synthesized without any latch that can be verified below.  
 
+![Screenshot (887)](https://user-images.githubusercontent.com/86364922/123668512-cc39e500-d858-11eb-9ad3-d4dffaaa33c1.png)
 
 Example 5:
+Partial Assignments
 
+```javascript
 module partial_case_assign (input i0 , input i1 , input i2 , input [1:0] sel , output reg y , output reg x);
 always @ (*)
 begin
@@ -1096,10 +1187,31 @@ begin
 	endcase
 end
 endmodule
+```
+Expected Circuit: The 2X1 mux with output y is inferred without any latch. To find out the latching condition of the second mux we take the help of the following truth table:
 
+| sel[1] | sel[0] |  x    |
+|--------|--------|-------|
+|   0    |    0   |   i2  |
+|   0    |    1   | latch |
+|   1    |    0   |   i1  |
+|   1    |    1   |   i1  |  
+
+Condition for enabling: 
+  ```javascript en= sel[1]+!(sel[0]).!(sel[1])
+                en=sel[1]+!(sel[0]) 
+  ```    
+  Using **Redundancy Theorem**
+  
+  Yosys implementation of the above design after synthesis,  
+  
+  ![Screenshot (889)](https://user-images.githubusercontent.com/86364922/123669943-4880f800-d85a-11eb-9ad8-c4d0e8411ff2.png)  
+  As expected, Only 1 D latch is inferred for X. No latch is inferred for y.
 
 Example 6:
+Design of 4X1 mux having overlapping cases
 
+```javascript
 module bad_case (input i0 , input i1 , input i2 , input [1:0] sel , output reg y);
 always @ (*)
 begin
@@ -1108,16 +1220,22 @@ begin
 		2'b01: y = i1;
 		2'b10: y = i2;
 		2'b1?: y = i3;
-		//2'b11: y = i3;
-
+		
 	endcase
 end
 endmodule
+```
+In gtkwaveform of RTL simulation:  
 
-synth sim mismatch
+![Screenshot (901)](https://user-images.githubusercontent.com/86364922/123670745-2b005e00-d85b-11eb-954c-c33903a040e9.png)  
+Observation : When sel[1:0]=11, the output neither follows i2 nor i3. It simply latches to 1.  
 
+Whereas while running GLS on the netlist,the waveform of the synthesized netlist behaves as 4X1 mux as shown below 
 
-Introduction to Looping Constructs
+![Screenshot (850)](https://user-images.githubusercontent.com/86364922/123671332-c396de00-d85b-11eb-8553-b5c8788a2f09.png)  
+Thus ,Overlapping cases confuse the simulator and leads to Synthesis-Simulation Mismatches.
+
+## Introduction to Looping Constructs
 
 There are two different uses of FOR loops in verilog design, as follows.
 

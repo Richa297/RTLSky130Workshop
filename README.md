@@ -297,10 +297,425 @@ Glitches are the unwanted or unexpected transactions that occur due to propagati
 More the combinational circuits more glitchy is the output .We therfore need an element to store the value of the output and that element is called FLOP(storage element).Flop provides resistance to glitches as they transition only at the clock edges .Even though the input of the flop is glitching ,the output will be stable. This avoids glitch propagation in further combinational circuits .  
 Also,Initialising the flop is required else the combination circuit will evaluate it to a garbage value. To initialise the flop we have reset and set pins. These two pins can be either synchronous or asynchronous.
 
-**Asynchoronous and Synchronous resets**
-Asynchronous reset: this reset signal does not wait for a clock the moment as synchronous reset is received output queue becomes 0 irrespective of the clock.  
+**Asynchoronous and Synchronous resets**  
+Asynchronous reset: this reset signal does not wait for a clock .The moment asynchronous reset signal  is received output queue becomes 0 irrespective of the clock.  
 
-Asynchronous set:
+Asynchronous set: this set signal does not wait for a clock. The moment asynchronous reset is signal received output queue becomes 1 irrespective of the clock.      
+ Verilog codes of asynchronous reset and set :  
+ 
+![asyncset reset](https://user-images.githubusercontent.com/86364922/123565541-e634e280-d7da-11eb-81fb-a76841061aa3.png)  
+
+GTKWAVE RTL Simulation and Observations :  
+
+![asyncreset0to1](https://user-images.githubusercontent.com/86364922/123565619-2e540500-d7db-11eb-9cd4-16e8da582598.png) 
+
+- Q follows d only at the posedge of the clock.
+- But as and when async_rest=1,Q becomes 0 without waiting for the next edge of the clock.  
+
+![asyncreset1to0](https://user-images.githubusercontent.com/86364922/123565633-37dd6d00-d7db-11eb-893b-cdc44bc696ec.png) 
+
+- But when async_reset goes low(1 to 0),Q doesn't become 1 immediately ,it waits for the next clock edge to follow D.
+- Even if asunc_reset=1 and D=1, Q=0 as reset takes high precedence(that is how the code has been written,if condition of reset is checked first).  
+
+Synthesis implementation results :  
+asynchoronous reset :  
+![async_resetyosys](https://user-images.githubusercontent.com/86364922/123565663-49bf1000-d7db-11eb-8aca-364dfe5fb7e2.png)  
+asynchronous set:  
+![asyncsetyosys](https://user-images.githubusercontent.com/86364922/123566611-b6d3a500-d7dd-11eb-8ac6-12d222443158.png)  
+
+Synchronous Reset and set :
+On application of set or reset signals,the signal does not immediately goes high or low,but it waits for the next edge of the clock cycle. 
+RTL code of synchronous reset:
+![Screenshot (792)](https://user-images.githubusercontent.com/86364922/123567526-fbf8d680-d7df-11eb-8ffb-074399d84258.png)
+
+Note: The loop is entered only at positive edge of the clock.Upon the posedge of the clock I look for the presence of synchronous reset. If present,Q goes low else D is reflected to output Q.
+
+Synthesis Results:  
+![Screenshot (796)](https://user-images.githubusercontent.com/86364922/123567604-2cd90b80-d7e0-11eb-80b3-3d2b3696f0d8.png)
+
+Case wherein both both asynchronous and synchronous resets are applied together :  
+
+RTL CODE:  
+![syncres v](https://user-images.githubusercontent.com/86364922/123567672-5abe5000-d7e0-11eb-92b4-e15d3fbf8123.png)  
+Synthesis results:  
+![Screenshot (797)](https://user-images.githubusercontent.com/86364922/123567810-9f49eb80-d7e0-11eb-8ee6-13f917855169.png) 
+
+**OPTIMISATIONS**
+We now observe some Interesting Optimisations For Special Cases :  
+
+**Case 1:**
+
+Let's Consider the following design where the 3 bit input is multiplied by 2 and the output is a 4 bit value.  
+
+```javascript
+module mul2 (input [2:0] a , output [3:0] y);
+	assign y = a* 2;
+endmodule
+```
+
+Looking at it's truth table :
+
+| a[2:0] | y[3:0] |
+|--------|--------|
+| 000    |  0000  |
+| 001    |  0010  |
+| 010    |  0100  |
+| 011    |  0110  |
+| 100    |  1000  |
+| 101    |  1010  |
+| 110    |  1100  |
+| 111    |  1110  |  
+
+**Observation** : The output y[3:0] is the input a[2:0] appended with a 0 at the LSB. or, we can say that y = aX2 = {a,0} .   
+
+On synthesizing the netlist and look at its graphical realisation , we will see the same optimisation occuring in the netlist.There is no hardware required fot it.
+
+![Screenshot (757)](https://user-images.githubusercontent.com/86364922/123569226-8ee74000-d7e3-11eb-97bb-c65f1dc16aaa.png)
+
+
+**Case 2:**
+
+Let's consider the following design where the 3 bit input is multiplied by 9 and the output is a 6 bit value.  
+
+```javascript 
+module mult8 (input [2:0] a , output [5:0] y);
+	assign y = a* 9;
+endmodule
+```
+
+Looking at it's truth table :
+
+| a[2:0] | y[5:0] |
+|--------|--------|
+| 000    |  000000  |
+| 001    |  001001  |
+| 010    |  010010  |
+| 011    |  011011  |
+| 100    |  100100  |
+| 101    |  101101  |
+| 110    |  110110  |
+| 111    |  111111  |  
+
+**Observation** : The output y[5:0] is equal to the input a[2:0] appended with itself i.e.
+```javascript
+y = aX9 = aX(8+1)= aX8+aX1 = {a,0}+a 
+y = {a,a}
+```
+
+On synthesizing the netlist and look at it's graphical realisation , we will see the same optimisation occuring in the netlist.
+ 
+ ![Screenshot (890)](https://user-images.githubusercontent.com/86364922/123570091-2b5e1200-d7e5-11eb-8502-c70994c3416d.png)  
+ 
+ #DAY 3 : Combinational and Sequential Optimisations  
+ 
+ **Introduction to Logic optimisations**  
+ Inorder to produce a  digital circuit design which is optimised interms of area and power, the simulator performs many types of optimisations on the combinational and sequential circuits. 
+ 
+ 1.Combinational optimisation  methods:
+  - Squezzing the logic to get the most optimised design 
+     - Area and Power savings
+  - Constant propogation
+	   - Direct Optimisation
+  - Boolean Logic Optimisation
+	   - K-map
+	   - Quine-mckluskey Algorithm
+
+2.Sequential optimisation methods:
+- Basic
+	- Sequential constant Propogation
+- Advanced
+  - State Optimisation
+	- Retiming
+	- Sequential Logic Cloning (Floor Plan Aware Synthesis)
+
+
+**Combinational Logic Optimisations**
+
+We will try to understand each of the above mentioned combinational optimisations through different RTL code examples. For each example, We also check the synthesis implementation through yosys to understand how the optimisations take place.   
+All the  optimisation examples are in files opt_check.v, opt_check4.v, and multiple_modules_opt.v. All of these files are present under the verilog_files directory.
+
+
+Example 1:  
+opt_check.v
+```javascript
+module opt_check (input a, input b , output y);
+	assign y = a?b:0;
+endmodule
+```
+Ideally ,the above ternary operator should give us a mux. But the constant 0 propagates further in the logic .Using boolean simplification we obtain y = ab.   
+
+Synthesizing this in yosys :  
+
+Before realising the netlist, we must issue a command to yosys to perform optimisations. It removes all unused cells and wires to prduce optimised digital circuit.This can be done using the opt_clean -purge command as shown below.   
+
+![Screenshot (760)](https://user-images.githubusercontent.com/86364922/123571724-79c0e000-d7e8-11eb-94e7-8b037b21e041.png)
+
+Observation : After executing synth -top opt_check ,we see in the report that 1 AND gate gas been inferred.  
+
+Next,
+``` javascript
+ abc -liberty ../my_lib/lib/sky130_fd_sc_hd_tt_025C_1v80.lib  
+ write_verilog -noattr opt_check_netlist.v 
+ show
+ ```
+ On viewing the graphical synthesis realisation , we can see the Yosys has synthesized an AND gate as expected.
+ 
+ ![opt_check](https://user-images.githubusercontent.com/86364922/123572300-9ad60080-d7e9-11eb-97a7-4b449ecf3c5d.png)
+
+Example 2:  
+opt_check2.v  
+```javascript
+module opt_check2 (input a, input b , output y);
+	assign y = a?1:b;
+endmodule
+```
+After simplification,we expect the output y to be an OR gate, since the output of the mux can be simplified to y = a + b. If we generate the netlist and look at its graphical representation , we get 
+
+![Screenshot (891)](https://user-images.githubusercontent.com/86364922/123573785-323c5300-d7ec-11eb-96f0-9495a850a20f.png)  
+
+Note: The synthesis tool instead of OR gates infers a nand gate with inverted inputs based on Demorgan's Law. It is done to avoid stacked PMOS in CMOS implemantation of OR gate.  
+
+Example 3: opt_check3.v  
+
+```javascript
+module opt_check3 (input a, input b , input c , output y);
+	assign y = a?(c?b:0):0;
+endmodule
+```
+For the RTL  verilog code of opt_check3.v , we expect the output to be a 3 input AND gate based on constant propagation and boolean logic optimisation.The output y can be simplified to y = abc.   
+Next we generate the netlist  and observe its graphical representation after synthesis  
+
+![opt_check3](https://user-images.githubusercontent.com/86364922/123574392-59dfeb00-d7ed-11eb-9c6a-ba0f6313530f.png)
+
+Yosys synthesizes a 3 input AND gate as expected because of optimisations.  
+
+Example 4:opt_check4.v 
+```javascript
+module opt_check4 (input a, input b , input c , output y);
+	assign y = a?(b?(a & c):c):(!c);
+endmodule
+```
+In this case,the boolean logic optimisation simplifies  the output to a single xnor gate i.e.  y = a xnor c. 
+Next we generate the netlist  and observe its graphical representation after synthesis  
+
+![opt_check4](https://user-images.githubusercontent.com/86364922/123574684-f4402e80-d7ed-11eb-9ef2-e47ef795684a.png)  
+
+Yosys synthesizes a 3 input XNOR gate as expected because of optimisations.  
+
+Example 5:multiple_module_opt.v  
+
+```javascript
+module sub_module1(input a , input b , output y);
+	assign y = a & b;
+endmodule
+
+module sub_module2(input a , input b , output y);
+	assign y = a^b;
+endmodule
+
+module multiple_module_opt(input a , input b , input c , input d , output y);
+wire n1, n2, n3;
+
+
+sub_module1 U1 (.a(a), .b(1'b1), .y(n1));
+sub_module2 U2 (.a(n1), .b(1'b0), .y(n2));
+sub_module2 U3 (.a(b),  .b(d), .y(n3));
+
+assign y =c | (b & n1);
+
+endmodule
+```  
+
+![flattenb4purgeformultimodule](https://user-images.githubusercontent.com/86364922/123577957-6a469480-d7f2-11eb-9059-8031b4adeb8b.png)
+
+While synthesizing this in yosys we use flatten before opt_clean -purge.
+The multiple_module_opt instantiates both submodule1 and 2. 
+We must use Flat Synthesis here otherwise the optimisations will not be performed on the sub module level. 
+ 
+![multiple_module_opt v](https://user-images.githubusercontent.com/86364922/123578694-f86f4a80-d7f3-11eb-8b3d-573eae53da43.png) 
+
+Example 5: multiple_module_opt2.v  
+
+![multiple_module_opt2 v code](https://user-images.githubusercontent.com/86364922/123579123-e17d2800-d7f4-11eb-8f1b-ede052914b6a.png)
+On boolean optimisation, we obtain y=1 simply.
+It's synthesis yields:
+![multiple_module_opt2](https://user-images.githubusercontent.com/86364922/123582073-c6adb200-d7fa-11eb-9fa5-47cb3de7b2ac.png)  
+
+**Sequential Logic Optimisations**
+
+We will try to understand each of the sequential optimisations through different RTL code examples. For each example, We also check the synthesis implementation through yosys to understand how the optimisations take place.   
+All the  optimisation examples are in files  dff_const2.v,dff_const3.v,dffconst4.v and dff_const5.v. All of these files are under the verilog_files directory.
+
+
+Example 1: dff_const1.v
+
+```javascript
+module dff_const1(input clk, input reset, output reg q);
+always @(posedge clk, posedge reset)
+begin
+	if(reset)
+		q <= 1'b0;
+	else
+		q <= 1'b1;
+end
+endmodule
+```
+
+Here, it appears that the output Q should be equal to an inverted reset or Q=!reset. However, as the reset is synchronous,even if the flop has D pinned to logic 1,when reset becomes 0, Q does not immediately goto 1. It waits untill the positive edge of the next clock cycle.  
+This is observed by simulating the design in verilog, and viewing the VCD with GTKWave as follows
+
+$cmd ss$
+
+If we observe the waveform above , when reset becomes 0 , q only becomes 1 at the next clock edge. Hence, we do not get a sequential constant, and no optimisations should be possible here. Let's  confirm the same using Yosys synthesis and optimisation as follows
+
+$cmd ss$
+
+We must use the command dfflibmao -liberty
+../my_lib/lib/sky130_fd_sc_hd_tt_025C_1v80.lib as our design includes D flip-flops.
+We can then generate the netlist using abc -liberty
+../my_lib/lib/sky130_fd_sc_hd_tt_025C_1v80.lib and write_verilog -noattr
+dff_const1_netlist.v. To view the graphical realisation, we use the show command.
+
+$diagram$
+
+As you can see, no optimisation can be conducted on this design.
+
+Example 2:dff_const2.v
+
+module dff_const2(input clk, input reset, output reg q);
+always @(posedge clk, posedge reset)
+begin
+	if(reset)
+		q <= 1'b1;
+	else
+		q <= 1'b1;
+end
+endmodule
+
+Here, we can see thst regardless of the inputs, the output q always remains constant at 1 .
+This can be observed in the waveform viewer as well.
+
+$cmd ss$
+
+As the output is always constant, it can easily be optimised using Yosys as below.
+
+$digram$
+
+Example 3:dff_const3.v
+
+module dff_const3(input clk, input reset, output reg q);
+reg q1;
+
+
+always @(posedge clk, posedge reset)
+begin
+	if(reset)
+	begin
+		q <= 1'b1;
+		q <= 1'b0;
+	end
+	else
+	begin 
+		q1 <= 1'b1;
+		q <= q1;
+	end
+end
+endmodule
+
+
+Here, we might think that the output q should always be constant at the value 1.For an ideal circuit, this may be true. Wgen reset is 0 then q1 should be 1, making the output q to be 1 as well. But when we consider the propogation delay time of D flip-flop q1, the output of q1 = 1 will not be present exactly at th clock edge.Thus, q takes the value 0 until the next clock edge when it read an input of 1 from q1. This is confirmed with the simulated waveform below.
+
+$cmd ss$
+
+
+Hence, Both the flip-flops are needed and no optimisations can be conducted on this particular design. We can confirm this using Yosys as shown below.
+
+$diagram$
+
+
+As you can see, both the D flip-flops are present in the synthesized netlist.
+
+Example 4: dff_const4.v
+
+module dff_const4(input clk, input reset, output reg q);
+reg q1;
+
+always @(posedge clk, posedge reset)
+begin
+	if(reset)
+	begin
+		q <= 1'b1;
+		q <= 1'b1;
+	end
+	else
+	begin
+		q <= 1'b1;
+ 		q <= q1;
+	end
+
+end
+endmodule
+
+
+Here, We can see that regardless of the reset input , q1 is always going to be constant at 1. As q can only be 1 or q1 depending on the reset input , but q1 = 1 .Thus q is also constant at the value 1. We can confirm this with the simulated waveforms as shown below.
+
+
+$ cmd ss $
+
+
+As the output is always constant, it can easily be optimised using Yosys as shown in the graphical realisation below.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

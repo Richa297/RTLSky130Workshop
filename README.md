@@ -406,7 +406,7 @@ On synthesizing the netlist and look at it's graphical realisation , we will see
  
  ![Screenshot (890)](https://user-images.githubusercontent.com/86364922/123570091-2b5e1200-d7e5-11eb-8502-c70994c3416d.png)  
  
- #DAY 3 : Combinational and Sequential Optimisations  
+ # DAY 3 : Combinational and Sequential Optimisations  
  
  **Introduction to Logic optimisations**  
  Inorder to produce a  digital circuit design which is optimised interms of area and power, the simulator performs many types of optimisations on the combinational and sequential circuits. 
@@ -562,26 +562,32 @@ endmodule
 ```
 
 Here, it appears that the output Q should be equal to an inverted reset or Q=!reset. However, as the reset is synchronous,even if the flop has D pinned to logic 1,when reset becomes 0, Q does not immediately goto 1. It waits untill the positive edge of the next clock cycle.  
-This is observed by simulating the design in verilog, and viewing the VCD with GTKWave as follows
+This is observed by simulating the design in verilog, and viewing the VCD with GTKWave as follows   
 
-$cmd ss$
+![Screenshot (871)](https://user-images.githubusercontent.com/86364922/123584288-bb5c8580-d7fe-11eb-89b2-4b89b5785e57.png)
 
-If we observe the waveform above , when reset becomes 0 , q only becomes 1 at the next clock edge. Hence, we do not get a sequential constant, and no optimisations should be possible here. Let's  confirm the same using Yosys synthesis and optimisation as follows
+Observation : In the gtk waveform above , when reset becomes 0, Q becomes 1 at the next clock edge. Since Q can be either 1 or 0,we do not get a sequential constant, and no optimisations should be possible here.
+We verify it using Yosys synthesis and optimisation.  
+While synthesis,We  use 
+```javascript
+dfflibmao -liberty ../my_lib/lib/sky130_fd_sc_hd_tt_025C_1v80.lib
+```
+dfflibmap is a switch that tells the synthesizer about the library to pick sequential circuits( mainly  Dff's  and latches) from.
 
-$cmd ss$
+We then generate the netlist 
+```javascript
+abc -liberty ../my_lib/lib/sky130_fd_sc_hd_tt_025C_1v80.lib 
+write_verilog -noattr dff_const1_netlist.v 
+show
+```
 
-We must use the command dfflibmao -liberty
-../my_lib/lib/sky130_fd_sc_hd_tt_025C_1v80.lib as our design includes D flip-flops.
-We can then generate the netlist using abc -liberty
-../my_lib/lib/sky130_fd_sc_hd_tt_025C_1v80.lib and write_verilog -noattr
-dff_const1_netlist.v. To view the graphical realisation, we use the show command.
+![Screenshot (878)](https://user-images.githubusercontent.com/86364922/123585110-3d00e300-d800-11eb-9748-ee5bfbddca34.png)
 
-$diagram$
+As expected, No optimisation is performed in th yosys implementation during synthesis.
 
-As you can see, no optimisation can be conducted on this design.
+Example 2 : dff_const2.v  
 
-Example 2:dff_const2.v
-
+```javascript
 module dff_const2(input clk, input reset, output reg q);
 always @(posedge clk, posedge reset)
 begin
@@ -591,28 +597,29 @@ begin
 		q <= 1'b1;
 end
 endmodule
+```
 
-Here, we can see thst regardless of the inputs, the output q always remains constant at 1 .
-This can be observed in the waveform viewer as well.
+Here, Regardless of the inputs, the output q always remains constant at 1 .  
+This is observed by simulating the design in verilog, and viewing the VCD with GTKWave as follows   
 
-$cmd ss$
+![Screenshot (873)](https://user-images.githubusercontent.com/86364922/123585355-b6003a80-d800-11eb-9c8d-ae2f0e4717fb.png)  
 
-As the output is always constant, it can easily be optimised using Yosys as below.
+Since the output is always constant ie Q=1, it can easily be optimised during synthesis.  
 
-$digram$
+![Screenshot (880)](https://user-images.githubusercontent.com/86364922/123585526-02e41100-d801-11eb-8b1a-073081326b47.png)
 
-Example 3:dff_const3.v
 
+Example 3 : dff_const3.v
+```javascript
 module dff_const3(input clk, input reset, output reg q);
 reg q1;
-
 
 always @(posedge clk, posedge reset)
 begin
 	if(reset)
 	begin
 		q <= 1'b1;
-		q <= 1'b0;
+		q1 <= 1'b0;
 	end
 	else
 	begin 
@@ -621,49 +628,222 @@ begin
 	end
 end
 endmodule
+```
+When reset goes from 1 to 0,Q1 follows D at the next positive clock edge in an ideal ckt. But in reality, Q1 becomes 1 a little after the  next positive clk edge(once reset has been made 0)due to **Clock-to-Q delay**.   
+Thus, q takes the value 0 until the next clock edge when it read an input of 1 from q1. This is confirmed with the simulated waveform below.
+
+![Screenshot (874)](https://user-images.githubusercontent.com/86364922/123586503-733f6200-d802-11eb-82e3-821bab0c1d07.png)
+
+Since Q takes both logic 0 and 1 values in different clock cycles. It is wrong to say that
+ Q=!(reset)  or Q=Q1    
+Hence, both the flip-flops are retained and no optimisations are performed on this design.  We can confirm this using Yosys as shown below.
+
+![Screenshot (881)](https://user-images.githubusercontent.com/86364922/123588573-961f4580-d805-11eb-8fff-ac831dc2219d.png)
+
+Both the D flip-flops are present in the synthesized netlist.
+
+Example 4: dff_const4.v  
+
+RTL Code: 
+
+![Screenshot (875)](https://user-images.githubusercontent.com/86364922/123589213-86543100-d806-11eb-9d2c-5d970d8ff6fc.png)  
+
+Here, regardless of the  input whether reset or not , Q1 is always going to be constant i.e.  Q1=1 . As q can only be 1 or q1 depending on the reset input , but q1 = 1 .Thus q is also constant at the value 1. We can confirm this with the simulated waveforms as shown below.
+
+![Screenshot (877)](https://user-images.githubusercontent.com/86364922/123589283-a4ba2c80-d806-11eb-9f41-f698d5e9b038.png)
+
+As the output is always constant, it can easily be optimised using Yosys as shown in the graphical representation.  
+
+![Screenshot (882)](https://user-images.githubusercontent.com/86364922/123589434-da5f1580-d806-11eb-81ad-600bab8e0772.png)  
+
+**Unused output optimisations**  
+
+# Day 4: Gate Level Simulations,Blocking vs Non Blocking assignments,Synthesis-Simulation Mismatch  
+**Introduction to Gate Level Simulations**  
+We validate our RTL design by providing stimulus to the testbench and check whether it meets our specifications earlier we were running the test bench with the RTL code as our design under test .  
+But now under  GLS ,we apply netlist to the testbench as desh under test . What We did at the behavioral level in the RTL code got transformed to the net list in terms of the standard cells present in the library. So,net list is logically same as the RTL code. They both have the same inputs and outputs so the netlist should seamlessly fit in the place of the RTL code. We put the netlist in place of the RTL file and run the simulation with the test bench.  
+When we do simulation in with the help of RTL code there is no concept of timing analysis such as the hold and setup time which are critical for a circuit. For meeting this setup and hold time criteria there are different flavours of cell in the library.
+
+![Screenshot (800)](https://user-images.githubusercontent.com/86364922/123590696-9bca5a80-d808-11eb-80d1-37bd184e22ff.png)
+
+In GLS  using iverilog flow, the design is a netlist which is given to Iverilog simulator  in terms of standard cells present in the library. The library has different flavours of the same type of cell available.To make the simulator understand the specification of the different annotations of the cell the GATE level verilog models is also given as an input. If the GATE level models are **timing aware** (delay annotated ),then we can use the GLS for timing validation as well.  
+
+Question : If netlist is the true representation of my RTL code then what is the need of functional validation of my net list?  
+Answer:  Because they can be simulation and synthesis mismatches.  
+
+**Synthesis Simulation Mismatches**  
+- Missing sensitivity list
+- Blocking and non blocking statements
 
 
-Here, we might think that the output q should always be constant at the value 1.For an ideal circuit, this may be true. Wgen reset is 0 then q1 should be 1, making the output q to be 1 as well. But when we consider the propogation delay time of D flip-flop q1, the output of q1 = 1 will not be present exactly at th clock edge.Thus, q takes the value 0 until the next clock edge when it read an input of 1 from q1. This is confirmed with the simulated waveform below.
+**Missing sensitivity list**
 
-$cmd ss$
+Simulator functions on the basis of activity that is it looks for if either of the inputs change. If there is no change in the inputs the simulator won't evaluate the output at all.
 
+Example: 
+```javascript
+module mux(input i0, input i1, input sel, output reg y);
 
-Hence, Both the flip-flops are needed and no optimisations can be conducted on this particular design. We can confirm this using Yosys as shown below.
-
-$diagram$
-
-
-As you can see, both the D flip-flops are present in the synthesized netlist.
-
-Example 4: dff_const4.v
-
-module dff_const4(input clk, input reset, output reg q);
-reg q1;
-
-always @(posedge clk, posedge reset)
+always @(sel)
 begin
-	if(reset)
+	if (sel)
 	begin
-		q <= 1'b1;
-		q <= 1'b1;
+		y = i1;
 	end
 	else
 	begin
-		q <= 1'b1;
- 		q <= q1;
+		y = i0;
 	end
-
 end
 endmodule
+```
+The problem in this mux code is that simulation happens  only when the select is high so if select is slow and there are changes in i zero aur i1 they get completely missed. So for the simulator this marks is as good as a latch a double h block but the synthesizer does not look at the sensitivity list rather on functionality creates a mux.
+Simulation: latch
+Synthesis:mux
+Hence,Mismatch.
+
+**Blocking and non blocking statements** 
+Inside always block
+- Blocking
+ Executes the statements in the order it is written
+ So the first statement is evaluated before the second statement
+- Non Blocking
+ Executes all the RHS when always block is entered and assigns to LHS.
+ Parallel evaluation
+
+Example of Blocking assignments:
+
+```javascript
+module shift_register(input clk, input reset, input d, output reg q1);
+reg q0;
+
+always @(posedge clk,posedge reset)
+begin
+	if(reset)
+	begin
+		q0 = 1'b0;
+		q1 = 1'b0;
+	end
+	else
+	begin
+		q0 = d;
+		q1 = q0;
+	end
+end
+endmodule
+```
+ In this case, D is assigned to Qo not which is then assigned to Q. Due to optimisation a single latch is formed where Q is equal to D.
+ 
+Example of Non-Blocking assignments:  
+
+In the above RTL code if
+```javascript
+      begin
+		q0 <= d;
+		q1 <= q0;
+      end
+ ```
+In the non blocking assignments all the RHS are evaluated and parallel assigned to lhs irrespective of the order in which they appear. So we will always get a two flop shift register.
+
+Therefore we always use non blocking statements for writing sequential circuits.  
+
+Other example:
+```javascript
+module comblogic(input a, input b, input c, output reg y);
+reg q0;
+
+always @(*)
+begin
+	y = q0 & c;
+	q0 = a|b;
+end
+endmodule
+```
+
+We enter into the loop whenever any of the inputs a b or C changes but Y is assigned with old Qo value since it is using the value of the previous Tclk ,the  simulator mimics a delay or a flop. Where as, during synthesis we see the the OR and AND gates as expected.  
+
+Therefore ,while using blocking statements in this case,we should evaluate Q0 first and then Y so that Y takes on the updated values of Qo. Although both the circuits on synthesis give the same digital circuit comprising of AND, OR gates. But on simulation we get different behaviours.  
+
+**Labs on GLS and Synthesis-Simulation Mismatch**
+Example 1:
+A mux designed with the help of ternary operator
+```javascript
+module ternary_operator_mux (input i0 , input i1 , input sel , output y);
+	assign y = sel?i1:i0;
+endmodule
+```
+The synthesized netlist for the above,using yosys   
+
+![Screenshot (868)](https://user-images.githubusercontent.com/86364922/123598554-47c47380-d812-11eb-8f74-9b9eeebe182d.png)    
+
+To invoke GLS,
+- We need to read our netlist file and the test bench file assosciated with it.
+- We need to read 2 extra files that contain the description of verilog models in the netlist.
+```javascript
+iverilog ../my_lib/verilog_model/primitives.v ../my_lib/verilog_model/sky130_fd_sc_hd.v ternary_operator_mux_net.v tb_ternary_operator_mux.v
+```
+To see the waveform of RTL simulation,we execute the following commands further
+```javascript
+./a.out
+gtkwave tb_ternary_operator_mux.v
+```  
+![Screenshot (892)](https://user-images.githubusercontent.com/86364922/123599839-a76f4e80-d813-11eb-8aac-92b3e6b3068f.png)  
+The generated netlist does behave like a 2X1 multiplexer.  
+
+Example 2: 
+```javascript
+module bad_mux (input i0 , input i1 , input sel , output reg y);
+always @(sel)
+begin
+	if(sel)
+		y <= i1;
+	else
+		y <= i0;
+end 
+endmodule
+```  
+In this example,```javascriptalways``` is evaluated only if ```javascriptselect``` is high.It is insensitive to ```javascriptio or i1``` because ```javascriptselect``` is low.  
+
+This is verified by GTKWAVE of  RTL Simulation below  :  
+![Screenshot (893)](https://user-images.githubusercontent.com/86364922/123601772-ad662f00-d815-11eb-8298-028aa12b1b62.png)    
+
+The design simulates  a **latch** rather than a 2x1 mux.  
+But the Yosys implementation shows a 2X1 mux .   
+
+![Screenshot (894)](https://user-images.githubusercontent.com/86364922/123602392-51e87100-d816-11eb-9d45-8577f4b82393.png)    
+
+If we now implement it's GATE level netlist through GLS and observe the waveform,it shows the behaviour of a  2X1 mux as shown below: 
+
+![Screenshot (895)](https://user-images.githubusercontent.com/86364922/123603424-7ee95380-d817-11eb-9546-9181191a344f.png)    
+
+Since,the waveforms of stimulated RTL Code : Is of a LATCH
+      the waveforms of gate level netlist thruogh GLS after synthesis: Is of 2X1 MUX 
+We see a **Synthesis-Simulation Mismatch**.  
+
+Example 3: 
+This is an example of synthesis-simulation mismatch due to wrong order of assignment in blocking assignments.  
+
+```javascript
+module blocking_caveat (input a , input b , input c , output reg d);
+reg x;
+
+always @(*)
+begin
+	d = x & c;
+	x = a | b;
+end 
+endmodule
+```
+We enter into the loop whenever any of the inputs a b or C changes but D is assigned with old X value since it is using the value of the previous Tclk ,the  simulator mimics a delay or a flop. Where as, during synthesis we see the the OR and AND gates as expected.
 
 
-Here, We can see that regardless of the reset input , q1 is always going to be constant at 1. As q can only be 1 or q1 depending on the reset input , but q1 = 1 .Thus q is also constant at the value 1. We can confirm this with the simulated waveforms as shown below.
 
 
-$ cmd ss $
 
 
-As the output is always constant, it can easily be optimised using Yosys as shown in the graphical realisation below.
+
+
+
 
 
 

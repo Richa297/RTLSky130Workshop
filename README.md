@@ -1443,7 +1443,11 @@ the resulting gtkwaveform is shown below that shows an adder being simulated:
 ![Screenshot (859)](https://user-images.githubusercontent.com/86364922/123684054-9c93d880-d86a-11eb-9208-e1ae9a274e9b.png)
 
 Takeaways from this workshop:  
-- We succesfully learnt How to write the verilog codes using for,generate,if-else,case ,blocking/non blocking assignments so that our intended functionality is met
+- We succesfully learnt How to write the verilog codes using for,generate,if-else,case ,blocking/non blocking assignments so that our intended functionality is met.
+- We learnt to genertaed the gtk waveform ans see the simulated wave results. We learnt to read timing diagrams as well.
+- We learnt to synthesize the rtl verilog design using yosys and understand how the synthesizer implements the logic considering area and delay optimisations
+- We learnt to verify the simulation -synthesis results by feeding netlist+testbench+Gate verilog models to the iverilog,during GLS(gate level synthesis simulation).
+- We learnt good coding practices and ways to write optimised verilog codes.
 
 Acknowledgment:  
 1.Kunal Ghosh - Co-founder(Vsd corp. pvt.ltd.)  

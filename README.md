@@ -195,11 +195,47 @@ So fastercells don't come  free. They come at the tradeoffs of area and power.
 - More use of slower cells may result in a sluggist circuit and may not meet the performance.
  It is required for us to offer guidance to the synthesizer to pick correct set of cells .This guiding parameters to the synthesizer are called as **CONSTRAINTS**.
  
-## Labs using Yosys and Sky130 PDKs  
+## Labs using Yosys and Sky130 PDKs
+**Commands to obtain a synthesized implementation of good_mux design**
 
+1.We need to read verilog files, .lib files and writing out the netlist after invoking yosys.
+2.Read the library using the read -liberty command.
+3. We read the verilog design file.
+4. We generate the netlist
+5. We synthesize the rtl code with the top module's name using synth -top command.
+6. Use abc -liberty to generate the netlist.
+7. Display the synthesis implementation using show.
  
+ The commands to synthesise a rtl code called good_mux is  as follows:
+ ```javascript
+ yosys
+ read_liberty -lib ../my_lib/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+ read_verilog good_mux.v
+ synth -top good_mux
+ abc -liberty ../my_lib/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+ show
+ ```
+ ![Screenshot (707)](https://user-images.githubusercontent.com/86364922/123677473-c517d480-d862-11eb-9227-79a4f6c154ca.png)  
+Note: ABC is the command that converts our RTL file into a gate .What gate it has linked to, that gate  is specified in the library with the path ../my_lib/lib/sky130_fd_sc_hd__tt_025C_1v80.lib .The logic of good mux will be realised through standard cells present in the library of the mentioned path. The execution of ABC command gives us a report of the number of input and the output signals of our standard cell .
+
+ ![Screenshot (708)](https://user-images.githubusercontent.com/86364922/123677583-ed073800-d862-11eb-8717-40ffde7b5ce7.png)
  
- # DAY2 : TIMING LIBS, HIERARCHICAL Vs FLAT SYNTHESIS AND EFFICIENT FLOP CODING STYLES
+ It also specifies the type and number of cells in a synthesis of RTL design. 
+ 
+ ![Screenshot (710)](https://user-images.githubusercontent.com/86364922/123677911-4a9b8480-d863-11eb-8b5b-3e5a6f0e8ab2.png)
+
+On execution of show command,a synthesized implementation of good_mux design is visible.
+![Screenshot (712)](https://user-images.githubusercontent.com/86364922/123678119-8a626c00-d863-11eb-82a8-da06a7f7eef7.png)
+
+**Commands to write a netlist**
+
+```javascript
+write_verilog -noattr good_mux_netlist.v
+!gvim  good mux_netlist.v
+```
+Note: We use the switch -noattr i.e. no attributes for a more simplistic view of our netlist as shown below
+![Screenshot (711)](https://user-images.githubusercontent.com/86364922/123678799-694e4b00-d864-11eb-9929-495cccf53336.png)  
+# DAY2 : TIMING LIBS, HIERARCHICAL Vs FLAT SYNTHESIS AND EFFICIENT FLOP CODING STYLES
 ## INTRODUCTION TO TIMING .lib
 We take a walk through the library that is said to have a collection of all the standard cells along with their different flavors.
 We begin by understanding the name of the library. To look into the  library,we use the gvim command  

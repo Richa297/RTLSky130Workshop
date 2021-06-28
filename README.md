@@ -764,7 +764,8 @@ We enter into the loop whenever any of the inputs a b or C changes but Y is assi
 
 Therefore ,while using blocking statements in this case,we should evaluate Q0 first and then Y so that Y takes on the updated values of Qo. Although both the circuits on synthesis give the same digital circuit comprising of AND, OR gates. But on simulation we get different behaviours.  
 
-**Labs on GLS and Synthesis-Simulation Mismatch**
+**Labs on GLS and Synthesis-Simulation Mismatch**  
+
 Example 1:
 A mux designed with the help of ternary operator
 ```javascript
@@ -834,7 +835,337 @@ begin
 end 
 endmodule
 ```
-We enter into the loop whenever any of the inputs a b or C changes but D is assigned with old X value since it is using the value of the previous Tclk ,the  simulator mimics a delay or a flop. Where as, during synthesis we see the the OR and AND gates as expected.
+We enter into the loop whenever any of the inputs a b or C changes but D is assigned with old X value since it is using the value of the previous Tclk ,the  simulator mimics a delay or a flop. Where as, during synthesis we see the the OR and AND gates as expected. 
+
+![Screenshot (899)](https://user-images.githubusercontent.com/86364922/123624602-633c7800-d82c-11eb-8c49-fad6e5006435.png)
+
+At the instance where both the inputs a and b are 0. a | b should output 0, which when ANDed with c, should give an output y of 0. The output y  thus should hold the value 0.
+Instead,it holds the value 1 . 
+But due to the blocking statements in the rtl code, x actually holds a the value of       a OR b from the previous clock, hence giving us an incorrect output.
+
+The netlist representation on synthesis yields   
+
+![Screenshot (869)](https://user-images.githubusercontent.com/86364922/123625713-a9460b80-d82d-11eb-9e60-9948f33a85dc.png)
+
+The synthesizer does not see the sensitivity list rather the functionality of the RTL design.Hence,the netlist representation does not include any latches to hold delayed values pertaining to the previous cycle. It only includes an OR 2 AND gate.   
+
+If we run gate level simulations on this netlist in verilog, we observe the following waveform.   
+
+![Screenshot (900)](https://user-images.githubusercontent.com/86364922/123626551-97189d00-d82e-11eb-8918-665f36646176.png)  
+
+Here , we  observe that the circuit behaves as intended combinational ckt. Output d results from  the present value of inputs, and not the previous clock values like in the simulation results. 
+Since the waveforms of the stimulated RTL  verilog code do not match with the gate level simulation of generated netlist,we get a Synthesis-Simulation Mismatch again.
+
+# Day 5 - If, Case, For Loop and For Generate
+
+**If Constructs**
+If condition is used to to write priority logic. The condition one has a priority or if has more priority than the consecutive else  statements .
+Only when condition 1 is not met condition 2 is evaluated and so on and y is assigned accordingly depending on the matching conditions.  
+```javascript  
+if (cond_1)
+begin 	
+	y = statement_1;
+end
+else if (cond_2)
+begin
+	y = statement_2;
+end
+else if (cond_3)
+begin
+	y = statement_3;
+end
+else
+begin
+	y = statement_4;
+end
+```  
+If-else block implements a Priority logic that is if cond_1 is satisfied, next ]'statements.
+Thus we get a ladder like multiplexer structure in the final design instead of a single multiplexer, which is shown below.
+
+$ code ss $
+
+Since the tool does not know what to do when both conditions are false, it will infer a latch
+to store the latest value of the output. When both conditions are false, the stored value in the latch will be driven to the output.
+
+
+We must always take into consideration what hardware will our verilog code directly be translated to. Sometimes however, incomplete
+IF constructs are perfecctly fine in cases such as counters where latches must store the previous output as the input when no enable condition is found.
+
+
+CASE Constructs.
+
+Let's look at the following verilog code block. Here, the inferred hardware would be a 4:1 multiplexer.
+Note that CASE statements do not have priority logic like IF statements.
+
+always @(*)
+begin
+	case(sel)
+		2'boo: begin
+			y = statement_1;
+			end
+		2'b01: begin
+			y = statement_2;
+			end
+		2'b10: begin
+			y = statement_3;
+			end
+		2'b11: begin
+			y = statement_4;
+			end
+	endcase
+end
+
+Some caveats with using CASE statements:
+
+1.Incomplete CASE
+
+always @(*)
+begin
+	case(sel)
+		2'b00: begin
+			y = statement_1;
+		2'b01: begin
+			y = statement_2;
+			end
+	endcase
+end
+
+
+This occurs when some cases are not specified inside the CASE block .For example, if the 2'b10 and 2'b11 cases were not mentioned,
+the tool would synthesize inferred latches at the 3rd and 4th inputs of the multipleaxer. To avoid this, we can make use of the default: case
+inside the CASE block so that the tool knows what to do when a case that is not specified occurs.
+
+
+2.Partial assignments
+
+always @(*)
+begin
+	case(sel)
+		2'boo: begin
+			x = a;
+			y = b;
+		2'b01: begin
+			x = c;
+		default: begin
+			x = d;
+			y = d;
+			end
+	endcase
+end
+
+
+In the above example, we have 2 outputs x and y. This will create two 4:1 multiplexers,
+one for each output. If we look at case 2'b01, we have specified the value of x for this case
+,but not the value of y. We might assume that it is okay to do so, as a default case is specified
+for  both the outputs, and if we don't directly specify the value of y, the tool
+will imply the default case. This, however , is incorrect. In partial assignments such as this, the tool will infer a latch 
+at the 2nd input for multiplexer y as no value is specified.
+
+
+3.Overlapping cases
+
+always @(*)
+begin
+	case(sel)
+		2'b00: begin
+			y = a;
+		2'b01: begin
+			y = b;
+			end
+		2'b10: begin
+			y = c;
+		2'b1?: begin
+			y = d;
+			end
+	endcase
+end
+
+
+In the above code block ,2'b1? specifies that the LSB can be either 0 or 1. 
+This means when the sel input is holding a value 3,
+conditiona 3 and 4 both hold true.If we used an IF condition here, due to priority logic, condition 4 would be ignored when condition 3 is met. However
+,in the CASE statement , both conditions would hold true as there is no priority logic,
+and we would get an unpredictable output. This is known as an overlaping case.
+
+Synthesizing Incorrect IF and CASE constructs
+
+Example 1:
+
+Below is the file titled incomp_if.v, and can be found in the directory verilog_files.
+
+module incomp_if(input i0 , input i1 , input i2 , output reg y);
+always @(*)
+begin
+	if(i0)
+		y <= i1;
+end
+endmodule
+
+
+
+The code contains an incomplete IF statement as no else condition is mentioned .As we
+have learnt, we should see latch like behaviour in the simulation .
+Let's simulate this design using the following commands
+
+
+$cmd ss $
+
+$cmd ss $
+
+From the above waveform, We can observe that when i0 becomes low, the output y holds
+the previous value of input i1. This shows latch like behaviour , and can further
+be detailed by looking at the synthesis output using Ysosys.
+
+ $ cmd ss $
+
+As we can see, an inferred latch is created in the synthesized netlist.
+
+Example 2:
+
+Let's look at a similar example of incomp_if2.v below.
+
+module incomp_if2(input i0 , input i1 , input i2 , input i3,  output reg y);
+always @(*)
+begin
+	if(i0)
+		y <= i1;
+	else if (i2)
+		y <= i3;
+
+end
+endmodule
+
+	
+The above code contains an incomplete IF statement as well. Here, we have 2 inputs i1 and i3,
+as well as 2 conditional inputs i0 and i2. As we do not specify what happens to the output y when both i0 and i2 go low,
+we will get an issue in the final synthesis. Let us look at its simulated waveform.
+
+$cmd ss $
+
+As you can see, when both i0 and i2 are low,
+the output y depicts latch like behaviour.
+This can be verified by checking the graphical realisation of the yosys synthesis below.Yosys synthesizes a multiplexer
+as well as a latch with some combinational logic foe its enable pin.
+
+$cmd ss$
+
+
+Example3:
+
+module incomp_case (input i0 , input i1 , input i2 , input [1:0] sel , output reg y);
+always @ (*)
+begin
+	cae(sel)
+		2'b00: y = i0;
+		2'b01: y = i1;
+	endcase
+end
+endmodule
+
+
+Example 4:
+
+module comp_case (input i0 , input i1 , input i2 , input [1:0] sel , output reg y);
+always @ (*)
+begin
+	cae(sel)
+		2'b00: y = i0;
+		2'b01: y = i1;
+		default:y = i2;
+	endcase
+end
+endmodule
+
+follows i2 at default case
+
+
+Example 5:
+
+module partial_case_assign (input i0 , input i1 , input i2 , input [1:0] sel , output reg y , output reg x);
+always @ (*)
+begin
+	cae(sel)
+		2'b00: begin
+			y = i0;
+			x = i2;
+			end
+		2'b01: y = i1;
+		default: begin 
+			x = i1;
+			y = i2;
+			end
+	endcase
+end
+endmodule
+
+
+Example 6:
+
+module bad_case (input i0 , input i1 , input i2 , input [1:0] sel , output reg y);
+always @ (*)
+begin
+	cae(sel)
+		2'b00: y = i0;
+		2'b01: y = i1;
+		2'b10: y = i2;
+		2'b1?: y = i3;
+		//2'b11: y = i3;
+
+	endcase
+end
+endmodule
+
+synth sim mismatch
+
+
+Introduction to Looping Constructs
+
+There are two different uses of FOR loops in verilog design, as follows.
+
+1.FOR Loop
+
+	1.Used within the always block
+	2.Used to evaluate expressions
+
+2.generate FOR loop
+	1. Only used outside the always block
+	2. Used for instantiating hardware
+
+
+FOR
+
+(evaluating multiple assignments)
+
+
+FOR Generate
+
+examples
+
+ex 1;
+
+module mux_generate (input i0 , input i1 , input i2 , input i3 , input  [1:0] sel , output reg y);
+wire [3:0] i_int;
+assign i_int = {i3,i2,i1,i0);
+integer k;
+
+
+always @(*)
+begin
+	for(k = 0;k < 4; k=k+1)begin
+		if(k == sel)
+			y = i_int[k];
+
+	end
+end
+endmodule
+
+instantiate fa in loop
+Rules for addition
+
+N and N bit number --> sum will be N+1 bit N and M bit number --> Sum will be Max(N,M)+1 bit.
+
+
+
 
 
 

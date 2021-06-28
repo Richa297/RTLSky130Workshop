@@ -1439,8 +1439,9 @@ the resulting gtkwaveform is shown below that shows an adder being simulated:
 ![Screenshot (859)](https://user-images.githubusercontent.com/86364922/123684054-9c93d880-d86a-11eb-9208-e1ae9a274e9b.png)
 
 
+
 Acknowledgment:
-1.Kunal Ghosh - Co-founder(Vsd corp. pvt.ltd.)
+1.Kunal Ghosh - Co-founder(Vsd corp. pvt.ltd.)  
 2.Shon Taware
 
 

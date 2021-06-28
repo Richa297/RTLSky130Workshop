@@ -1273,69 +1273,175 @@ Thus ,Overlapping cases confuse the simulator and leads to Synthesis-Simulation 
 
 ## Introduction to Looping Constructs
 
-There are two different uses of FOR loops in verilog design, as follows.
+There are two types of FOR loops in verilog.
 
-1.FOR Loop
-
+1.FOR loop
 	1.Used within the always block
 	2.Used to evaluate expressions
 
-2.generate FOR loop
-	1. Only used outside the always block
-	2. Used for instantiating hardware
+2. Generate FOR  loop
+	1.Only used outside the always block
+	2.Used for instantiating hardware
 
+**Necessity of FOR loops**  
 
-FOR
+For loops are extremely useful when we want to  write a code /design that involves multiple assignments or evaluations within the always block.
+Lets us take an example:
+If we want to write the code for 4:1 multiplexer, we can easily do so using a either four if blocks or using a case block with 4 cases,as seen in the previous if-else blocks.But this approach is not suitable for complicated design with numerous inputs/outputs say 256X1 mux.If we wanted to design a 256X1 multiplexer, we will have to write 256 lines of condition statements using **select** and corresponding assignments.
+But in for loop ,be it 4X1 or 256X1 we would always be writing 4 lines of code only.
+Although we need to provide 256 inputs using an internal bus.
 
-(evaluating multiple assignments)
-
-
-FOR Generate
-
-examples
-
-ex 1;
-
-module mux_generate (input i0 , input i1 , input i2 , input i3 , input  [1:0] sel , output reg y);
-wire [3:0] i_int;
-assign i_int = {i3,i2,i1,i0);
+```javascript 
 integer k;
+always @(*)
+begin
+	for (k = 0, k < 256, k= i  +1)
+	begin
+		if (k== sel)
+			y = in[i];
+		end
+	end
+end
+```
 
+This code can be infinitely scaled up by just replacing the condition  i < 256 with the desired specification for our multiplexer.
+
+Similarly, we can create High input demultiplexers as well.
+
+```javascript
+integer k
+always @(*)
+begin
+	int_bus[15:0] = 16b'0;
+	for (k= 0; k< 16; k= k+ 1) 
+	begin
+		if (k == sel)
+			int_bus[k] = inp[k];
+		end
+	end
+end
+```
+
+
+Here , we have created a 16:1 demultiplexer using for loops within the always block.
+The int_bus[15:0] specifies our internal bus which takes on the input of the demux. It is necessary to assign all outputs to low for a new value of sel else latches will be inferred resulting in the incorrect implementation of our logic.
+
+Below are few of the examples of FOR construct .
+
+Example 1:
+
+ file mux_generate.v that generates a 4X1 mux using For loop.
+ 
+```javascript
+module mux_generate (input  i0, input i1 , input i2 , input i3 , input [1:0] sel , output reg y);
+wire [3:0] i_int;
+assign i_int = {i3,i2,i1,i0};
+integer k;
 
 always @(*)
 begin
-	for(k = 0;k < 4; k=k+1)begin
+	for(k = 0; k < 4; k=k+1)begin
 		if(k == sel)
 			y = i_int[k];
-
 	end
 end
 endmodule
+```
 
-instantiate fa in loop
-Rules for addition
+The 4 inputs  get assigned to a the internal 4 bit bus named  i_int. 
 
-N and N bit number --> sum will be N+1 bit N and M bit number --> Sum will be Max(N,M)+1 bit.
-
-
-
+The gtkwave obtained after the simulation
+![Screenshot (861)](https://user-images.githubusercontent.com/86364922/123682021-1aa2b000-d868-11eb-8458-f54296445c1c.png)
 
 
+Example 2:
+
+Similar to example 1, file demux_generate.v that generates a 4X1 demux using For loop.
+
+```javascript
+module demux_generate (output o0 , output 02 , output o3 ,  output o4 , output o5 , output o6 , output o7 , input [2:0] sel , input i);
+reg [7:0]y_int;
+assign {o7,o6,o5,o4,o3,o2,o1,o0} = y_int;
+integer k;
+
+always @(*)
+begin
+	y_int = 8'bo;
+	for( k = 0; k < 8; k++) begin
+		if(k == sel)
+			y_int[k] = i;
+	end
+end 
+endmodule
+```
+The above code has good readabilty,scalability and easy to write as well.
+Let's verify if it functions as a 8X1 demux as expected by viewing its  gtkwave simulated waveform.
+
+![Screenshot (865)](https://user-images.githubusercontent.com/86364922/123682733-001d0680-d869-11eb-9452-d6e2086926df.png)
 
 
 
+**FOR Generate and its Uses**
+
+FOR Generate is used when we needto create  multiple instances of the same hardware.
+We must use the For generate  outside the always block.
+
+We take example of a 8 bit Ripple Carry Adder(RCA) to understand the ease of instantiations provided by the For generate statement. An RCA consists of Full Adders tied in series where  the carry out of the previous full adder is fed as the carry in bit of the next full adder in the chain. Hence, we can make use of generate for to instantiate every full adder in the design , as they are all represent the same hardware.
 
 
+For this example , we  use the file rcs.v which holds the code for the ripple carry adder. It also needs to be included in our simulation.
+
+```javascript
+
+module rca (input [7:0] num1 , input  [7:0] num2 , output [8:0] sum);
+wire [7:0] int_sum;
+wire [7:0] int_co;
+
+genvar i;
+generate
+	for (i = 1; i < 8; i=i+1) begin
+		fa u_fa_1 (.a(num1[i]),.b(num2[i],.c(int_co[i-1],.co(int_co[i]),.sum(int_sum[i]));
+	end
+
+endgenerate
+fa u_fa_0 (.a(num1[0]),.b(num2[0]),.c(1'b0),.co(int_co[0]),.sum(int_sum[0]));
+
+assign sum[7:0] = int_sum;
+assign sum[8] = int_co[7];
+endmodule
+```
+
+Here, fa references another verilog design file containing the definition of for the full adder submodules .This is shown below, from the fa.v file
+```javascript
+module fa(input a, input b , input c,  output co, output sum);
+	assign  {co,sum} = a +b + c;
+endmodule
+```
+
+In the RCA verilog code, we instantiate fa in a loop using generate for outside the always block.
+
+Rules for addition :
+
+N + N bit number --> Sum will be N + 1 bits
+N +M bit number --> Sum will be max(N,M) +1 bits
 
 
+Now, let us simulate this design in verilog and view its waveform with GKTWave .As the rca design referances the file fa.v , we must specify it in our commands as follows
+
+```javascript
+iverilog fa.v rca.v tb_rca.v
+./a.out
+gtkwave tb_rca.v
+```
+
+the resulting gtkwaveform is shown below that shows an adder being simulated:  
+
+![Screenshot (859)](https://user-images.githubusercontent.com/86364922/123684054-9c93d880-d86a-11eb-9208-e1ae9a274e9b.png)
 
 
-
-
-
-
-
-
+Acknowledgment:
+1.Kunal Ghosh - Co-founder(Vsd corp. pvt.ltd.)
+2.Shon Taware
 
 
 

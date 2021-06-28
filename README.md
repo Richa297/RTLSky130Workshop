@@ -43,24 +43,27 @@ Icarus Verilog is a simulator used for simulation and synthesis of RTL  designs 
 
 We install the opensource software Virtual box for ruuning the Linux Ubuntu without actually installing it. Then we can download any version of Linux comfortable to us. Once done,We start with the following steps for our environment seup in our virtual terminal.  
 
-1.mkdir vsd  
-2.cd vsd  
-3.git clone https://github.com/kunalg123/vsdflow.git  
-4.mkdir vlsi  
-4.cd vlsi  
-5.git clone https://github.com/kunalg123/sky130RTLDesignAndSynthesisWorkshop.git  
-6.cd SKY130RTLDesignAndSynthesisWorkshop  
-7.cd my_lib  
-8.cd lib  
-9.cd ..  
-10.cd verilog_model  
-11.cd ..  
-12.cd ..  
-13.cd verilog_files  
-Below screenshot shows the above directory structure inside the vsd upto my_lib directories that was set up through the terminal.![1 tool setup (2)](https://user-images.githubusercontent.com/86364922/123187775-68aa6300-d4b8-11eb-9fa1-97e42909bcc3.png)
+```javascript
+ mkdir vsd  
+ cd vsd  
+ git clone https://github.com/kunalg123/vsdflow.git  
+ mkdir vlsi  
+ cd vlsi  
+ git clone https://github.com/kunalg123/sky130RTLDesignAndSynthesisWorkshop.git  
+ cd SKY130RTLDesignAndSynthesisWorkshop  
+ cd my_lib  
+ cd lib  
+ cd ..  
+ cd verilog_model  
+ cd ..  
+ cd ..  
+ cd verilog_files  
+ ```
+Below screenshot shows the above directory structure inside the vsd upto my_lib directories that was set up through the terminal.  
+![1 tool setup (2)](https://user-images.githubusercontent.com/86364922/123187775-68aa6300-d4b8-11eb-9fa1-97e42909bcc3.png)  
 Below screenshot shows the list of verilog files. Each verilog design file has an assosciated test bench file.  
 
-![verilogfilelist](https://user-images.githubusercontent.com/86364922/123188501-c3908a00-d4b9-11eb-93f8-d305bb0d8b16.png)
+![verilogfilelist](https://user-images.githubusercontent.com/86364922/123188501-c3908a00-d4b9-11eb-93f8-d305bb0d8b16.png)  
 
 Since the environment is now set up,we try to simulate a verilog code named good_mux in one of our verilog_files with the help of it's test bench and gtkwave. The steps are mentioned below:
 1. We simulate the RTL design and assosciated test bench .
@@ -92,6 +95,7 @@ Since the environment is now set up,we try to simulate a verilog code named good
   Add vcode and testbench
   
   ### Introduction to Yosys and Logic synthesis  
+  
   **Synthesizer** :It is a tool used for the conversion of an RTL to a netlist.  
   **Netlist** : It is a representation of the input design to yosys in terms of standard cells present in     the library.
   Yosys is the Synthesizer tool that we will be using. 
@@ -1438,9 +1442,10 @@ the resulting gtkwaveform is shown below that shows an adder being simulated:
 
 ![Screenshot (859)](https://user-images.githubusercontent.com/86364922/123684054-9c93d880-d86a-11eb-9208-e1ae9a274e9b.png)
 
+Takeaways from this workshop:  
+- We succesfully learnt How to write the verilog codes using for,generate,if-else,case ,blocking/non blocking assignments so that our intended functionality is met
 
-
-Acknowledgment:
+Acknowledgment:  
 1.Kunal Ghosh - Co-founder(Vsd corp. pvt.ltd.)  
 2.Shon Taware
 
